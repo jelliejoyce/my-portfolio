@@ -455,10 +455,10 @@ function Nav({ scrollY }: { scrollY: number }) {
 }
 
 
-
 // ─── Contact Form ─────────────────────────────────────────────────────────────
 function ContactForm() {
   const [submitted, setSubmitted] = useState(false)
+  const [isSending, setIsSending] = useState(false)
 
   const inputStyle = {
     width: '100%',
@@ -482,8 +482,32 @@ function ContactForm() {
     e.target.style.boxShadow = 'none'
   }
 
-  const handleFormSubmit = () => {
-    setSubmitted(true)
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsSending(true)
+
+    // Scraping form fields straight out of the active element layout context
+    const formData = new FormData(e.currentTarget)
+    formData.append("access_key", "5610e500-aa2b-4bd5-b35c-22909c198635")
+    formData.append("subject", "New Portfolio Lead Inflow Notification")
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      })
+
+      const result = await response.json()
+      if (result.success) {
+        setSubmitted(true)
+      } else {
+        alert("The server received the data packet but rejected the parameters.")
+      }
+    } catch (error) {
+      alert("Submission error. Please check your network connection and retry.")
+    } finally {
+      setIsSending(false)
+    }
   }
 
   if (submitted) {
@@ -517,20 +541,9 @@ function ContactForm() {
   }
 
   return (
-    <form 
-      action="https://web3forms.com" 
-      method="POST" 
-      onSubmit={handleFormSubmit}
-      target="hidden_iframe"
-      style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
-    >
-      {/* Hidden iframe handles the data route in the background so your page layout doesn't reload */}
-      <iframe name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }}></iframe>
-
-      {/* Required verification keys mapped directly to form attributes */}
-      <input type="hidden" name="access_key" value="5610e500-aa2b-4bd5-b35c-22909c198635" />
-      <input type="hidden" name="subject" value="New Portfolio Lead Inflow Notification" />
-      <input type="hidden" name="from_name" value="Portfolio Website" />
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Hidden honeypot field prevents bot entries and forces Web3Forms validation success */}
+      <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }}></input>
 
       <div className="contact-form-name-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div>
@@ -623,6 +636,7 @@ function ContactForm() {
       </div>
       <button
         type="submit"
+        disabled={isSending}
         style={{
           alignSelf: 'flex-start',
           fontFamily: 'var(--font-sans)',
@@ -633,19 +647,22 @@ function ContactForm() {
           border: 'none',
           borderRadius: 100,
           padding: '14px 32px',
-          cursor: 'pointer',
+          cursor: isSending ? 'not-allowed' : 'pointer',
           transition: 'background 0.2s ease, transform 0.2s ease',
+          opacity: isSending ? 0.7 : 1,
         }}
         onMouseEnter={(e) => {
-          ;(e.target as HTMLElement).style.background = '#6B9B78'
-          ;(e.target as HTMLElement).style.transform = 'scale(1.03)'
+          if (!isSending) {
+            ;(e.target as HTMLElement).style.background = '#6B9B78'
+            ;(e.target as HTMLElement).style.transform = 'scale(1.03)'
+          }
         }}
         onMouseLeave={(e) => {
           ;(e.target as HTMLElement).style.background = '#1C1C18'
           ;(e.target as HTMLElement).style.transform = 'scale(1)'
         }}
       >
-        Send Message →
+        {isSending ? 'Sending...' : 'Send Message →'}
       </button>
     </form>
   )
