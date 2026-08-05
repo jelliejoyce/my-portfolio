@@ -486,20 +486,18 @@ function ContactForm() {
     e.preventDefault()
     setIsSending(true)
 
+    // Convert data to a standard URL format to completely bypass network CORS blocks
+    const formData = new FormData()
+    formData.append("access_key", "5610e500-aa2b-4bd5-b35c-22909c198635")
+    formData.append("name", formState.name)
+    formData.append("email", formState.email)
+    formData.append("message", formState.message)
+    formData.append("subject", "New Portfolio Lead Inflow Notification")
+
     try {
       const response = await fetch("https://web3forms.com", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          access_key: "5610e500-aa2b-4bd5-b35c-22909c198635",
-          name: formState.name,
-          email: formState.email,
-          message: formState.message,
-          subject: "New Portfolio Lead Inflow Notification",
-        }),
+        body: formData, // Sending standard form data bypasses the security restriction
       })
 
       const result = await response.json()
@@ -509,7 +507,7 @@ function ContactForm() {
         alert("Something went wrong with the form service. Please try again.")
       }
     } catch (error) {
-      alert("Network error. Please check your internet connection and try again.")
+      alert("Something went wrong. Please check your network connection.")
     } finally {
       setIsSending(false)
     }
