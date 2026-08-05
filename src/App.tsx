@@ -1093,7 +1093,10 @@ export default function App() {
             >
               I'm a GoHighLevel Specialist focused on transforming messy business operations into
               streamlined, revenue-generating machines by centralizing your marketing, sales
-              pipelines, and customer communication into one cohesive platform. By partnering with
+              pipelines, and customer communication into one cohesive platform. 
+              <br> 
+              <br> 
+                By partnering with
               me, you get an agile, platform-focused expert who eliminates technical headaches, cuts
               software overhead costs, and delivers turnkey automation, handling all the heavy lifting
               so you can focus entirely on serving your clients.
