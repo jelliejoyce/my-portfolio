@@ -460,7 +460,6 @@ function Nav({ scrollY }: { scrollY: number }) {
 function ContactForm() {
   const [formState, setFormState] = useState({ name: '', email: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
-  const [isSending, setIsSending] = useState(false)
 
   const inputStyle = {
     width: '100%',
@@ -484,40 +483,8 @@ function ContactForm() {
     e.target.style.boxShadow = 'none'
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSending(true)
-
-    // Using Web3Forms core JSON configuration avoids server handshake blocks
-    const payload = {
-      access_key: "5610e500-aa2b-4bd5-b35c-22909c198635",
-      name: formState.name,
-      email: formState.email,
-      message: formState.message,
-      subject: "New Portfolio Lead Inflow Notification",
-    }
-
-    try {
-      const response = await fetch("https://web3forms.com", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        body: JSON.stringify(payload),
-      })
-
-      const data = await response.json()
-      if (data.success) {
-        setSubmitted(true)
-      } else {
-        alert("The server received the message but rejected the format parameters.")
-      }
-    } catch (error) {
-      alert("Submission error. Please clear your cache memory and try again.")
-    } finally {
-      setIsSending(false)
-    }
+  const handleFormSubmit = () => {
+    setSubmitted(true)
   }
 
   if (submitted) {
@@ -551,7 +518,21 @@ function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <form 
+      action="https://web3forms.com" 
+      method="POST" 
+      onSubmit={handleFormSubmit}
+      target="hidden_iframe"
+      style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+    >
+      {/* Hidden iframe handles the data route in the background so your page layout doesn't reload */}
+      <iframe name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }}></iframe>
+
+      {/* Required verification keys mapped directly to form attributes */}
+      <input type="hidden" name="access_key" value="5610e500-aa2b-4bd5-b35c-22909c198635" />
+      <input type="hidden" name="subject" value="New Portfolio Lead Inflow Notification" />
+      <input type="hidden" name="from_name" value="Portfolio Website" />
+
       <div className="contact-form-name-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div>
           <label
@@ -570,6 +551,7 @@ function ContactForm() {
           </label>
           <input
             type="text"
+            name="name"
             required
             placeholder="Your name"
             value={formState.name}
@@ -600,6 +582,7 @@ function ContactForm() {
           </label>
           <input
             type="email"
+            name="email"
             required
             placeholder="your@email.com"
             value={formState.email}
@@ -630,6 +613,7 @@ function ContactForm() {
           Message
         </label>
         <textarea
+          name="message"
           required
           rows={5}
           placeholder="Tell me about your project..."
@@ -646,7 +630,6 @@ function ContactForm() {
       </div>
       <button
         type="submit"
-        disabled={isSending}
         style={{
           alignSelf: 'flex-start',
           fontFamily: 'var(--font-sans)',
@@ -657,22 +640,19 @@ function ContactForm() {
           border: 'none',
           borderRadius: 100,
           padding: '14px 32px',
-          cursor: isSending ? 'not-allowed' : 'pointer',
+          cursor: 'pointer',
           transition: 'background 0.2s ease, transform 0.2s ease',
-          opacity: isSending ? 0.7 : 1,
         }}
         onMouseEnter={(e) => {
-          if (!isSending) {
-            ;(e.target as HTMLElement).style.background = '#6B9B78'
-            ;(e.target as HTMLElement).style.transform = 'scale(1.03)'
-          }
+          ;(e.target as HTMLElement).style.background = '#6B9B78'
+          ;(e.target as HTMLElement).style.transform = 'scale(1.03)'
         }}
         onMouseLeave={(e) => {
           ;(e.target as HTMLElement).style.background = '#1C1C18'
           ;(e.target as HTMLElement).style.transform = 'scale(1)'
         }}
       >
-        {isSending ? 'Sending...' : 'Send Message →'}
+        Send Message →
       </button>
     </form>
   )
