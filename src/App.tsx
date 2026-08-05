@@ -486,28 +486,33 @@ function ContactForm() {
     e.preventDefault()
     setIsSending(true)
 
-    // Formulate a clean encoded body to satisfy API transport restrictions
-    const params = new URLSearchParams()
-    params.append("access_key", "5610e500-aa2b-4bd5-b35c-22909c198635")
-    params.append("name", formState.name)
-    params.append("email", formState.email)
-    params.append("message", formState.message)
-    params.append("subject", "New Portfolio Lead Inflow Notification")
+    // Official Web3Forms JSON structured string transmission mapping layout
+    const payload = {
+      access_key: "5610e500-aa2b-4bd5-b35c-22909c198635",
+      name: formState.name,
+      email: formState.email,
+      message: formState.message,
+      subject: "New Portfolio Lead Inflow Notification",
+    }
 
     try {
-      const response = await fetch("https://web3forms.com", {
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: params.toString(),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
       })
 
-      if (response.ok) {
+      const data = await response.json()
+      if (data.success) {
         setSubmitted(true)
       } else {
-        alert("Something went wrong. Please try again.")
+        alert("Form configuration issue. Please check your access key configuration status.")
       }
     } catch (error) {
-      alert("Submission error. Please check your connection and try again.")
+      alert("Submission error. Please clear your browser cache data and retry.")
     } finally {
       setIsSending(false)
     }
