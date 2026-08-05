@@ -481,9 +481,31 @@ function ContactForm() {
     e.target.style.boxShadow = 'none'
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
+    
+    // Package data to send directly to Web3Forms API
+    const response = await fetch("https://web3forms.com", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        access_key: "5610e500-aa2b-4bd5-b35c-22909c198635",
+        name: formState.name,
+        email: formState.email,
+        message: formState.message,
+        subject: "New Portfolio Lead Inflow Notification",
+      }),
+    })
+
+    const result = await response.json()
+    if (result.success) {
+      setSubmitted(true)
+    } else {
+      alert("Something went wrong. Please try again.")
+    }
   }
 
   if (submitted) {
@@ -637,9 +659,9 @@ function ContactForm() {
         Send Message →
       </button>
     </form>
-    
   )
 }
+
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
