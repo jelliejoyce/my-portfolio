@@ -458,6 +458,7 @@ function Nav({ scrollY }: { scrollY: number }) {
 function ContactForm() {
   const [formState, setFormState] = useState({ name: '', email: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
+  const [isSending, setIsSending] = useState(false)
 
   const inputStyle = {
     width: '100%',
@@ -483,28 +484,34 @@ function ContactForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    // Package data to send directly to Web3Forms API
-    const response = await fetch("https://web3forms.com", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        access_key: "5610e500-aa2b-4bd5-b35c-22909c198635",
-        name: formState.name,
-        email: formState.email,
-        message: formState.message,
-        subject: "New Portfolio Lead Inflow Notification",
-      }),
-    })
+    setIsSending(true)
 
-    const result = await response.json()
-    if (result.success) {
-      setSubmitted(true)
-    } else {
-      alert("Something went wrong. Please try again.")
+    try {
+      const response = await fetch("https://web3forms.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: "5610e500-aa2b-4bd5-b35c-22909c198635",
+          name: formState.name,
+          email: formState.email,
+          message: formState.message,
+          subject: "New Portfolio Lead Inflow Notification",
+        }),
+      })
+
+      const result = await response.json()
+      if (result.success) {
+        setSubmitted(true)
+      } else {
+        alert("Something went wrong with the form service. Please try again.")
+      }
+    } catch (error) {
+      alert("Network error. Please check your internet connection and try again.")
+    } finally {
+      setIsSending(false)
     }
   }
 
@@ -634,6 +641,7 @@ function ContactForm() {
       </div>
       <button
         type="submit"
+        disabled={isSending}
         style={{
           alignSelf: 'flex-start',
           fontFamily: 'var(--font-sans)',
@@ -644,19 +652,22 @@ function ContactForm() {
           border: 'none',
           borderRadius: 100,
           padding: '14px 32px',
-          cursor: 'pointer',
+          cursor: isSending ? 'not-allowed' : 'pointer',
           transition: 'background 0.2s ease, transform 0.2s ease',
+          opacity: isSending ? 0.7 : 1,
         }}
         onMouseEnter={(e) => {
-          ;(e.target as HTMLElement).style.background = '#6B9B78'
-          ;(e.target as HTMLElement).style.transform = 'scale(1.03)'
+          if (!isSending) {
+            ;(e.target as HTMLElement).style.background = '#6B9B78'
+            ;(e.target as HTMLElement).style.transform = 'scale(1.03)'
+          }
         }}
         onMouseLeave={(e) => {
           ;(e.target as HTMLElement).style.background = '#1C1C18'
           ;(e.target as HTMLElement).style.transform = 'scale(1)'
         }}
       >
-        Send Message →
+        {isSending ? 'Sending...' : 'Send Message →'}
       </button>
     </form>
   )
