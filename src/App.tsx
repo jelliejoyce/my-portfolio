@@ -636,7 +636,8 @@ function ContactForm() {
       >
         Send Message →
       </button>
-
+    </form>
+    
 <form action="https://api.web3forms.com/submit" method="POST">
   <input type="hidden" name="access_key" value="5610e500-aa2b-4bd5-b35c-22909c198635">
   <input type="text" name="name" required>
@@ -644,8 +645,6 @@ function ContactForm() {
   <textarea name="message" required></textarea>
   <button type="submit">Submit</button>
 </form>
-      
-    </form>
   )
 }
 
