@@ -690,8 +690,6 @@ export default function App() {
     'Email/SMS Nurturing',
     'Lead Management',
     'Appointment Booking',
-    'Reputation Management',
-    'A/B Testing',
     'Analytics & Reporting',
     'Zapier / Webhooks',
   ]
@@ -966,7 +964,7 @@ export default function App() {
           position: 'relative',
           zIndex: 1,
           padding: '100px 40px',
-          background: '#F2EFE8',
+          background: 'transparent',
         }}
       >
         <div
