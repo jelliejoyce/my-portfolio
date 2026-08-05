@@ -484,29 +484,33 @@ function ContactForm() {
     e.target.style.boxShadow = 'none'
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSending(true)
 
-    // Scraping form fields directly from the active elements satisfies Web3Forms security rules
-    const formData = new FormData(e.currentTarget)
-    formData.append("access_key", "5610e500-aa2b-4bd5-b35c-22909c198635")
-    formData.append("subject", "New Portfolio Lead Inflow Notification")
-
     try {
-      const response = await fetch("https://web3forms.com", {
+      // FormSubmit accepts standard clean application data blocks perfectly
+      const response = await fetch("https://formsubmit.co", {
         method: "POST",
-        body: formData, // Standard Multi-part content parameters prevent network resets
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          name: formState.name,
+          email: formState.email,
+          message: formState.message,
+          _subject: "New Portfolio Lead Inflow Notification"
+        }),
       })
 
-      const result = await response.json()
-      if (result.success) {
+      if (response.ok) {
         setSubmitted(true)
       } else {
-        alert("Something went wrong with the form service. Please try again.")
+        alert("Submission failed. Please check your form configuration details.")
       }
     } catch (error) {
-      alert("Submission error. Please check your internet connection and try again.")
+      alert("Submission error. Please clear your cache memory and try again.")
     } finally {
       setIsSending(false)
     }
@@ -562,7 +566,6 @@ function ContactForm() {
           </label>
           <input
             type="text"
-            name="name"
             required
             placeholder="Your name"
             value={formState.name}
@@ -593,7 +596,6 @@ function ContactForm() {
           </label>
           <input
             type="email"
-            name="email"
             required
             placeholder="your@email.com"
             value={formState.email}
@@ -624,7 +626,6 @@ function ContactForm() {
           Message
         </label>
         <textarea
-          name="message"
           required
           rows={5}
           placeholder="Tell me about your project..."
@@ -672,6 +673,8 @@ function ContactForm() {
     </form>
   )
 }
+
+
 
 
 
