@@ -1006,8 +1006,8 @@ export default function App() {
                 letterSpacing: '-0.015em',
               }}
             >
-              Turning messy operations into{' '}
-              <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>revenue machines.</span>
+              Hey there! Meet your{' '}
+              <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Operational Co-Pilot</span>
             </h2>
 
             {/* Profile mini-card */}
@@ -1059,9 +1059,9 @@ export default function App() {
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {[
-                    { icon: '📍', text: 'Philippines' },
+                    { icon: '📍', text: '  Tokyo, Japan' },
                     { icon: '💼', text: 'GoHighLevel Specialist' },
-                    { icon: '🕐', text: 'Available · GMT+8' },
+                    { icon: '🕐', text: 'Available · GMT+9' },
                   ].map((item) => (
                     <span
                       key={item.text}
@@ -1269,8 +1269,8 @@ export default function App() {
                     </svg>
                   ),
                   label: 'Email',
-                  value: 'your@email.com',
-                  href: 'mailto:your@email.com',
+                  value: 'hello.jjoyce@gmail.com',
+                  href: 'mailto:hello.jjoyce@gmail.com',
                 },
                 {
                   icon: (
@@ -1281,8 +1281,8 @@ export default function App() {
                     </svg>
                   ),
                   label: 'Instagram',
-                  value: '@your.handle',
-                  href: 'https://instagram.com/your.handle',
+                  value: '@jelejoys',
+                  href: 'https://instagram.com/jelejoys',
                 },
               ].map((link) => (
                 <a
@@ -1351,7 +1351,7 @@ export default function App() {
             textTransform: 'uppercase',
           }}
         >
-          Jellie Joyce Andaya
+          Work With Me
         </span>
         <span
           style={{
