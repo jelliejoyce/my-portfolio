@@ -458,7 +458,6 @@ function Nav({ scrollY }: { scrollY: number }) {
 
 // ─── Contact Form ─────────────────────────────────────────────────────────────
 function ContactForm() {
-  const [formState, setFormState] = useState({ name: '', email: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
 
   const inputStyle = {
@@ -554,8 +553,6 @@ function ContactForm() {
             name="name"
             required
             placeholder="Your name"
-            value={formState.name}
-            onChange={(e) => setFormState((s) => ({ ...s, name: e.target.value }))}
             style={inputStyle}
             onFocus={handleFocus}
             onBlur={handleBlur}
@@ -585,8 +582,6 @@ function ContactForm() {
             name="email"
             required
             placeholder="your@email.com"
-            value={formState.email}
-            onChange={(e) => setFormState((s) => ({ ...s, email: e.target.value }))}
             style={inputStyle}
             onFocus={handleFocus}
             onBlur={handleBlur}
@@ -617,8 +612,6 @@ function ContactForm() {
           required
           rows={5}
           placeholder="Tell me about your project..."
-          value={formState.message}
-          onChange={(e) => setFormState((s) => ({ ...s, message: e.target.value }))}
           style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 } as React.CSSProperties}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -657,6 +650,7 @@ function ContactForm() {
     </form>
   )
 }
+
 
 
 // ─── App ──────────────────────────────────────────────────────────────────────
