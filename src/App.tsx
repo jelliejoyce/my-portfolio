@@ -481,7 +481,6 @@ function ContactForm() {
     e.target.style.boxShadow = 'none'
   }
 
-  // We listen for the submission to show your original success layout card instantly
   const handleFormSubmit = () => {
     setSubmitted(true)
   }
@@ -524,13 +523,13 @@ function ContactForm() {
       target="hidden_iframe"
       style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
     >
-      {/* Hidden iframe trick: This forces the browser to process data in the background */}
-      {/* This prevents any reloads, stops the 405 error, and keeps your visual states working */}
+      {/* Hidden system iframe handles data execution without page reloads */}
       <iframe name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }}></iframe>
 
-      {/* Web3Forms required data parameters */}
+      {/* Required Web3Forms properties mapped directly to input name targets */}
       <input type="hidden" name="access_key" value="5610e500-aa2b-4bd5-b35c-22909c198635" />
       <input type="hidden" name="subject" value="New Portfolio Lead Inflow Notification" />
+      <input type="hidden" name="from_name" value="Portfolio Website" />
 
       <div className="contact-form-name-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div>
@@ -656,6 +655,7 @@ function ContactForm() {
     </form>
   )
 }
+
 
 
 // ─── App ──────────────────────────────────────────────────────────────────────
