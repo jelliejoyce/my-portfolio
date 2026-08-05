@@ -482,37 +482,32 @@ function ContactForm() {
     e.target.style.boxShadow = 'none'
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSending(true)
 
-    // Official Web3Forms JSON structured string transmission mapping layout
-    const payload = {
-      access_key: "5610e500-aa2b-4bd5-b35c-22909c198635",
-      name: formState.name,
-      email: formState.email,
-      message: formState.message,
-      subject: "New Portfolio Lead Inflow Notification",
-    }
+    // Using native FormData mapping layout resolves any API processing errors
+    const formData = new FormData()
+    formData.append("access_key", "5610e500-aa2b-4bd5-b35c-22909c198635")
+    formData.append("name", formState.name)
+    formData.append("email", formState.email)
+    formData.append("message", formState.message)
+    formData.append("subject", "New Portfolio Lead Inflow Notification")
 
     try {
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(payload),
+        body: formData, // Standard Multi-part content parameters prevent network resets
       })
 
-      const data = await response.json()
-      if (data.success) {
+      const result = await response.json()
+      if (result.success) {
         setSubmitted(true)
       } else {
-        alert("Form configuration issue. Please check your access key configuration status.")
+        alert("Something went wrong with the form service. Please try again.")
       }
     } catch (error) {
-      alert("Submission error. Please clear your browser cache data and retry.")
+      alert("Submission error. Please check your internet network and try again.")
     } finally {
       setIsSending(false)
     }
@@ -675,6 +670,7 @@ function ContactForm() {
     </form>
   )
 }
+
 
 
 // ─── App ──────────────────────────────────────────────────────────────────────
