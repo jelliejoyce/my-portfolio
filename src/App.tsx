@@ -488,26 +488,30 @@ function ContactForm() {
     e.preventDefault()
     setIsSending(true)
 
+    // Using Web3Forms core JSON configuration avoids server handshake blocks
+    const payload = {
+      access_key: "5610e500-aa2b-4bd5-b35c-22909c198635",
+      name: formState.name,
+      email: formState.email,
+      message: formState.message,
+      subject: "New Portfolio Lead Inflow Notification",
+    }
+
     try {
-      // FormSubmit accepts standard clean application data blocks perfectly
-      const response = await fetch("https://formsubmit.co", {
+      const response = await fetch("https://web3forms.com", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          "Accept": "application/json",
         },
-        body: JSON.stringify({
-          name: formState.name,
-          email: formState.email,
-          message: formState.message,
-          _subject: "New Portfolio Lead Inflow Notification"
-        }),
+        body: JSON.stringify(payload),
       })
 
-      if (response.ok) {
+      const data = await response.json()
+      if (data.success) {
         setSubmitted(true)
       } else {
-        alert("Submission failed. Please check your form configuration details.")
+        alert("The server received the message but rejected the format parameters.")
       }
     } catch (error) {
       alert("Submission error. Please clear your cache memory and try again.")
@@ -673,10 +677,6 @@ function ContactForm() {
     </form>
   )
 }
-
-
-
-
 
 
 // ─── App ──────────────────────────────────────────────────────────────────────
