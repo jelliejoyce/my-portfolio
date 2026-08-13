@@ -407,10 +407,10 @@ function Nav({ scrollY }: { scrollY: number }) {
         jellie joyce andaya
       </span>
       <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-        {['Work', 'About', 'Contact'].map((item) => (
+        {['Work', 'About', 'Certs', 'Contact'].map((item) => (
           <a
             key={item}
-            href={`#${item.toLowerCase()}`}
+            href={`#${item === 'Certs' ? 'certificates' : item.toLowerCase()}`}
             style={{
               fontFamily: 'var(--font-sans)',
               fontSize: '0.875rem',
@@ -454,6 +454,130 @@ function Nav({ scrollY }: { scrollY: number }) {
   )
 }
 
+// ─── Certificate Card ────────────────────────────────────────────────────────
+interface CertCardProps {
+  title: string
+  issuer: string
+  date: string
+  url: string
+  accent: string
+}
+
+function CertCard({ title, issuer, date, url, accent }: CertCardProps) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        textDecoration: 'none',
+        background: '#FFFFFF',
+        border: `1px solid ${hovered ? accent : '#E4E0D8'}`,
+        borderRadius: 16,
+        overflow: 'hidden',
+        transition: 'border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease',
+        boxShadow: hovered
+          ? `0 16px 40px rgba(0,0,0,0.08), 0 0 0 1px ${accent}`
+          : '0 2px 10px rgba(0,0,0,0.04)',
+        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Accent strip + icon */}
+      <div
+        style={{
+          height: 72,
+          background: `linear-gradient(135deg, ${accent}66 0%, ${accent}22 100%)`,
+          display: 'flex',
+          alignItems: 'center',
+          paddingLeft: 20,
+          gap: 12,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Subtle dot grid */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `radial-gradient(circle, ${accent}55 1px, transparent 1px)`,
+            backgroundSize: '16px 16px',
+          }}
+        />
+        {/* Certificate badge icon */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            width: 40,
+            height: 40,
+            borderRadius: 10,
+            background: '#FFFFFF',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            flexShrink: 0,
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B9B78" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="8" r="6"/>
+            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+        </div>
+        {/* Link arrow */}
+        <div style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9B9890" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7 17 17 7M7 7h10v10"/>
+          </svg>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ padding: '18px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <p
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '1rem',
+            color: '#1C1C18',
+            lineHeight: 1.3,
+            marginBottom: 4,
+          }}
+        >
+          {title}
+        </p>
+        <p
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: '0.85rem',
+            color: '#6B6860',
+            fontWeight: 400,
+          }}
+        >
+          {issuer}
+        </p>
+        <div style={{ marginTop: 'auto', paddingTop: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: accent, flexShrink: 0 }} />
+          <span
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.75rem',
+              color: '#9B9890',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {date}
+          </span>
+        </div>
+      </div>
+    </a>
+  )
+}
 
 // ─── Contact Form ─────────────────────────────────────────────────────────────
 function ContactForm() {
