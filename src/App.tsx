@@ -1319,6 +1319,114 @@ export default function App() {
         </div>
       </section>
 
+
+          {/* ── CERTIFICATES ─────────────────────────────────────────────────── */}
+      <section
+        id="certificates"
+        className="certs-section"
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          padding: '100px 40px',
+          maxWidth: 1160,
+          margin: '0 auto',
+        }}
+      >
+        {/* Section header */}
+        <div style={{ marginBottom: 56, maxWidth: 600 }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              color: '#6B9B78',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              display: 'block',
+              marginBottom: 14,
+            }}
+          >
+            Credentials
+          </span>
+          <h2
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
+              color: '#1C1C18',
+              lineHeight: 1.15,
+              letterSpacing: '-0.015em',
+              marginBottom: 14,
+            }}
+          >
+            Online{' '}
+            <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Certificates.</span>
+          </h2>
+          <p
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.95rem',
+              color: '#6B6860',
+              lineHeight: 1.7,
+              fontWeight: 300,
+            }}
+          >
+            Verified credentials from online courses and professional programs.
+          </p>
+        </div>
+
+        {/* Certificate cards grid */}
+        <div
+          className="certs-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: 20,
+          }}
+        >
+          {[
+            {
+              title: 'Certificate Title',
+              issuer: 'Issuer / Platform',
+              date: 'Month Year',
+              url: '#',
+              accent: '#B8D4BF',
+            },
+            {
+              title: 'Certificate Title',
+              issuer: 'Issuer / Platform',
+              date: 'Month Year',
+              url: '#',
+              accent: '#D5CAEB',
+            },
+            {
+              title: 'Certificate Title',
+              issuer: 'Issuer / Platform',
+              date: 'Month Year',
+              url: '#',
+              accent: '#F5E2B8',
+            },
+          ].map((cert, i) => (
+            <CertCard key={i} {...cert} />
+          ))}
+        </div>
+
+        {/* Add-more hint */}
+        <p
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: '0.78rem',
+            color: '#B8B4AC',
+            marginTop: 28,
+            letterSpacing: '0.03em',
+          }}
+        >
+          Replace the placeholder cards above with your real certificates — duplicate a{' '}
+          <code style={{ fontFamily: 'monospace', background: '#F2EFE8', padding: '2px 6px', borderRadius: 4 }}>CertCard</code>{' '}
+          entry in the array for each one.
+        </p>
+      </section>
+
+      
       {/* ── CONTACT ───────────────────────────────────────────────────────── */}
       <section
         id="contact"
