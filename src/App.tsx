@@ -1358,8 +1358,8 @@ export default function App() {
               marginBottom: 14,
             }}
           >
-            Online{' '}
-            <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Certificates.</span>
+            {' '}
+            <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Certificates</span>
           </h2>
           <p
             style={{
@@ -1385,24 +1385,31 @@ export default function App() {
         >
           {[
             {
-              title: 'Certificate Title',
-              issuer: 'Issuer / Platform',
-              date: 'Month Year',
-              url: '#',
+              title: 'Claude 101',
+              issuer: 'Anthropic',
+              date: '2026',
+              url: 'https://verify.skilljar.com/c/6nkq7vzv5y7g',
               accent: '#B8D4BF',
             },
             {
-              title: 'Certificate Title',
-              issuer: 'Issuer / Platform',
+              title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
+              issuer: 'Google',
               date: 'Month Year',
-              url: '#',
+              url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414443?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
               accent: '#D5CAEB',
             },
             {
-              title: 'Certificate Title',
-              issuer: 'Issuer / Platform',
-              date: 'Month Year',
-              url: '#',
+              title: 'GA Level 3 Certificate in TEFL',
+              issuer: 'i-to-i TEFL',
+              date: '2017/GA/22086',
+              url: 'https://gatehouseawards.org/verify-certificate/',
+              accent: '#F5E2B8',
+            },
+           {
+              title: 'Al Fluency Framework & Foundations',
+              issuer: 'Anthropic',
+              date: '2026',
+              url: 'https://verify.skilljar.com/c/2drrus4jxbrv',
               accent: '#F5E2B8',
             },
           ].map((cert, i) => (
