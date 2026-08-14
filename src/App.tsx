@@ -845,7 +845,8 @@ export default function App() {
     'Lead Management',
     'Appointment Booking',
     'Analytics & Reporting',
-    'Zapier / Webhooks',
+    'Make',
+    'AI',
   ]
 
   return (
@@ -1090,7 +1091,7 @@ export default function App() {
               fontWeight: 300,
             }}
           >
-            Explore pre-configured GoHighLevel frameworks engineered to solve common business
+           Pre-configured GoHighLevel frameworks engineered to solve common business
             bottlenecks. Built completely from scratch in my development sandbox.
           </p>
         </div>
@@ -1212,7 +1213,7 @@ export default function App() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {[
                     { icon: '📍', text: '  Tokyo, Japan' },
-                    { icon: '💼', text: 'GoHighLevel Specialist' },
+                    { icon: '💼', text: 'GoHighLevel / Automation Specialist' },
                     { icon: '🕐', text: 'Available · GMT+9' },
                   ].map((item) => (
                     <span
@@ -1243,7 +1244,7 @@ export default function App() {
                 fontWeight: 300,
               }}
             >
-              I'm a GoHighLevel Specialist focused on transforming messy business operations into
+              I'm a GoHighLevel / Automation Specialist focused on transforming messy business operations into
               streamlined, revenue-generating machines by centralizing your marketing, sales
               pipelines, and customer communication into one cohesive platform. 
            <br />
@@ -1385,54 +1386,76 @@ export default function App() {
         >
           {[
             {
+              title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
+              issuer: 'Google',
+              date: '2026',
+              url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414443?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
+              accent: '#B8D4BF',
+            },
+          
+           {
+              title: 'Al Fluency Framework & Foundations',
+              issuer: 'Anthropic',
+              date: '2026',
+              url: 'https://verify.skilljar.com/c/2drrus4jxbrv',
+              accent: '#D5CAEB',
+            },
+          
+            {
+              title: 'AI Capabilities and Limitations',
+              issuer: 'Anthropic',
+              date: '2026',
+              url: 'https://verify.skilljar.com/c/uhroqca7r38j',
+              accent: '#F5E2B8',
+            },
+
+    {
+              title: 'Introduction to Responsible AI',
+              issuer: 'Google',
+              date: '2026',
+              url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414962?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
+              accent: '#D5CAEB',
+            },
+          
+                      {
               title: 'Claude 101',
               issuer: 'Anthropic',
               date: '2026',
               url: 'https://verify.skilljar.com/c/6nkq7vzv5y7g',
+              accent: '#F5E2B8',
+            },
+          
+              {
+              title: 'Introduction to Claude Cowork',
+              issuer: 'Anthropic',
+              date: '2026',
+              url: 'https://verify.skilljar.com/c/uav39s8hemj8',
               accent: '#B8D4BF',
             },
-            {
-              title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
-              issuer: 'Google',
-              date: 'Month Year',
-              url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414443?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
-              accent: '#D5CAEB',
-            },
-            {
+          
+                      {
               title: 'GA Level 3 Certificate in TEFL',
               issuer: 'i-to-i TEFL',
               date: '2017/GA/22086',
               url: 'https://gatehouseawards.org/verify-certificate/',
               accent: '#F5E2B8',
             },
-           {
-              title: 'Al Fluency Framework & Foundations',
-              issuer: 'Anthropic',
-              date: '2026',
-              url: 'https://verify.skilljar.com/c/2drrus4jxbrv',
-              accent: '#F5E2B8',
+          
+    {
+              title: 'Associate in Computer Technology',
+              issuer: STI College Dasmarinas, PH',
+              date: '2014',
+              url: '#',
+              accent: '#B8D4BF',
             },
           ].map((cert, i) => (
             <CertCard key={i} {...cert} />
           ))}
         </div>
-
-        {/* Add-more hint */}
-        <p
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.78rem',
-            color: '#B8B4AC',
-            marginTop: 28,
-            letterSpacing: '0.03em',
-          }}
-        >
-          Replace the placeholder cards above with your real certificates — duplicate a{' '}
-          <code style={{ fontFamily: 'monospace', background: '#F2EFE8', padding: '2px 6px', borderRadius: 4 }}>CertCard</code>{' '}
-          entry in the array for each one.
-        </p>
       </section>
 
+
+      
       
       {/* ── CONTACT ───────────────────────────────────────────────────────── */}
       <section
