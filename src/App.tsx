@@ -1244,14 +1244,15 @@ export default function App() {
                 fontWeight: 300,
               }}
             >
-              I'm a GoHighLevel / Automation Specialist focused on transforming messy business operations into
-              streamlined, revenue-generating machines by centralizing your marketing, sales
-              pipelines, and customer communication into one cohesive platform. 
+I am a GoHighLevel / Automation Specialist focused on transforming messy business operations into streamlined, revenue-generating machines.
+By centralizing your marketing, sales pipelines, and customer communication into one cohesive platform, I eliminate technical headaches and cut software overhead costs.
+When you partner with me, you get an agile, platform-focused expert who delivers turnkey automation, handling all the heavy lifting so you can focus entirely on serving your clients.
            <br />
            <br />
-                By partnering with me, you get an agile, platform-focused expert who eliminates technical headaches, cuts
-              software overhead costs, and delivers turnkey automation, handling all the heavy lifting
-              so you can focus entirely on serving your clients.
+Outside of work, I swap digital architecture for the beauty of the open ocean.
+I am a Molchanovs Certified Advanced Freediver and a PADI Certified Open Water Diver, and nothing compares to the absolute clarity and peace of being under the sea.
+Navigating complex business workflows actually requires a lot of the same calm, discipline, and adaptability as diving into the deep blue—and I bring that exact focus 
+              to every automation ecosystem I build.
             </p>
           </div>
 
