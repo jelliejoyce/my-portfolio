@@ -1443,7 +1443,7 @@ export default function App() {
           
     {
               title: 'Associate in Computer Technology',
-              issuer: STI College Dasmarinas, PH',
+              issuer: 'STI College Dasmarinas, PH',
               date: '2014',
               url: '#',
               accent: '#B8D4BF',
