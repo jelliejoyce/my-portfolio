@@ -473,7 +473,7 @@ function CertCard({ title, issuer, date, url, accent }: CertCardProps) {
       rel="noopener noreferrer"
       style={{
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'left',
         justifyContent: 'space-between',
         padding: '18px 20px',
         textDecoration: 'none',
