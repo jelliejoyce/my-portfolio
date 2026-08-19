@@ -913,11 +913,11 @@ export default function App() {
           className="animate-fade-up delay-100"
           style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(3rem, 7vw, 5.5rem)',
+            fontSize: 'clamp(2rem, 6vw, 4.5rem)',
             color: '#1C1C18',
             lineHeight: 1.08,
             letterSpacing: '-0.02em',
-            maxWidth: 520,
+            maxWidth: 720,
             marginBottom: 20,
           }}
         >
@@ -931,12 +931,12 @@ export default function App() {
           className="animate-fade-up delay-200"
           style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: '.8rem',
+            fontSize: '.5rem',
             color: '#6B6860',
-            maxWidth: 300,
+            maxWidth: 500,
             lineHeight: 1.7,
             marginBottom: 48,
-            fontWeight: 300,
+            fontWeight: 200,
           }}
         >
           Automating the repetitive so your business captures, nurtures, and closes leads — without
