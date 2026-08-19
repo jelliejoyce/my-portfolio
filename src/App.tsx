@@ -917,8 +917,8 @@ export default function App() {
             color: '#1C1C18',
             lineHeight: 1.08,
             letterSpacing: '-0.02em',
-            maxWidth: 820,
-            marginBottom: 28,
+            maxWidth: 520,
+            marginBottom: 20,
           }}
         >
           Systems that work
@@ -931,9 +931,9 @@ export default function App() {
           className="animate-fade-up delay-200"
           style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: '1.1rem',
+            fontSize: '.8rem',
             color: '#6B6860',
-            maxWidth: 500,
+            maxWidth: 300,
             lineHeight: 1.7,
             marginBottom: 48,
             fontWeight: 300,
