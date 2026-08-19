@@ -539,7 +539,7 @@ function CertCard({ title, issuer, date, url, accent }: CertCardProps) {
       </div>
     </a>
   )
-}}
+}
 
 // ─── Contact Form ─────────────────────────────────────────────────────────────
 function ContactForm() {
