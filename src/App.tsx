@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import Spline from '@splinetool/react-spline'
 
 // ─── Floating Geometric Background ───────────────────────────────────────────
 function ParallaxShapes({ scrollY }: { scrollY: number }) {
@@ -102,6 +103,28 @@ function ParallaxShapes({ scrollY }: { scrollY: number }) {
           right: '30%',
           transform: `translateY(${scrollY * 0.11}px)`,
           transition: 'transform 0.1s linear',
+        }}
+      />
+    </div>
+  )
+}
+
+// ─── Spline Interactive Keyboard ──────────────────────────────────────────────
+function SplineKeyboard() {
+  return (
+    <div
+      className="spline-keyboard-wrapper"
+      style={{
+        width: '100%',
+        height: '520px',
+        position: 'relative',
+      }}
+    >
+      <Spline
+        scene="https://prod.spline.design/hFv1AmCuecNVkIws/scene.splinecode"
+        style={{
+          width: '100%',
+          height: '100%',
         }}
       />
     </div>
@@ -825,14 +848,24 @@ export default function App() {
           zIndex: 1,
           minHeight: '100vh',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          textAlign: 'center',
           padding: '120px 40px 80px',
         }}
       >
-        {/* Role pill */}
+        <div
+          className="hero-grid"
+          style={{
+            width: '100%',
+            maxWidth: '1400px',
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '60px',
+            alignItems: 'center',
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            {/* Role pill */}
         <div
           className="animate-fade-in"
           style={{
@@ -908,7 +941,7 @@ export default function App() {
         {/* CTA buttons */}
         <div
           className="hero-ctas animate-fade-up delay-300"
-          style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 80 }}
+          style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'flex-start', marginBottom: 80 }}
         >
           <a
             href="#work"
@@ -963,9 +996,16 @@ export default function App() {
           </a>
         </div>
 
-        {/* Workflow mockup */}
-        <div className="animate-fade-up delay-400" style={{ display: 'flex', justifyContent: 'center' }}>
-          <WorkflowMockup />
+            {/* Workflow mockup */}
+            <div className="animate-fade-up delay-400" style={{ display: 'flex', justifyContent: 'center' }}>
+              <WorkflowMockup />
+            </div>
+          </div>
+
+          {/* Interactive Spline keyboard */}
+          <div className="animate-fade-in delay-300" style={{ minWidth: 0 }}>
+            <SplineKeyboard />
+          </div>
         </div>
 
         {/* Scroll cue */}
@@ -1615,8 +1655,25 @@ Navigating complex business workflows actually requires a lot of the same calm, 
 
       {/* Responsive styles */}
       <style>{`
+        /* ── Hero + Spline ── */
+        .hero-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .spline-keyboard-wrapper {
+          height: 520px !important;
+        }
+
         /* ── Tablet (≤1024px) ── */
         @media (max-width: 1024px) {
+          .hero-grid {
+            grid-template-columns: 1fr 0.9fr !important;
+            gap: 35px !important;
+          }
+          .spline-keyboard-wrapper {
+            height: 450px !important;
+          }
+
           .about-grid {
             grid-template-columns: 1fr !important;
             gap: 48px !important;
@@ -1638,6 +1695,14 @@ Navigating complex business workflows actually requires a lot of the same calm, 
           .hero-section {
             padding: 100px 24px 60px !important;
             min-height: auto !important;
+          }
+          .hero-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+            text-align: center;
+          }
+          .spline-keyboard-wrapper {
+            height: 400px !important;
           }
           .hero-ctas {
             flex-direction: column !important;
@@ -1687,6 +1752,9 @@ Navigating complex business workflows actually requires a lot of the same calm, 
 
         /* ── Small phones (≤480px) ── */
         @media (max-width: 480px) {
+          .spline-keyboard-wrapper {
+            height: 320px !important;
+          }
           .stats-grid {
             grid-template-columns: 1fr !important;
           }
