@@ -913,9 +913,9 @@ export default function App() {
           className="animate-fade-up delay-100"
           style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(2rem, 6vw, 4.5rem)',
+            fontSize: 'clamp(2rem, 5vw, 3rem)',
             color: '#1C1C18',
-            lineHeight: 1.08,
+            lineHeight: 1,
             letterSpacing: '-0.02em',
             maxWidth: 720,
             marginBottom: 20,
@@ -931,7 +931,7 @@ export default function App() {
           className="animate-fade-up delay-200"
           style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: '.5rem',
+            fontSize: '.8rem',
             color: '#6B6860',
             maxWidth: 500,
             lineHeight: 1.7,
