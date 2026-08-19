@@ -116,8 +116,13 @@ function SplineKeyboard() {
       className="spline-keyboard-wrapper"
       style={{
         width: '100%',
-        height: '520px',
+        height: '620px',
         position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'visible',
+        background: 'transparent',
       }}
     >
       <Spline
@@ -125,11 +130,13 @@ function SplineKeyboard() {
         style={{
           width: '100%',
           height: '100%',
+          background: 'transparent',
         }}
       />
     </div>
-  )
+  );
 }
+
 
 // ─── Workflow Mockup ──────────────────────────────────────────────────────────
 function WorkflowMockup() {
@@ -1660,9 +1667,10 @@ Navigating complex business workflows actually requires a lot of the same calm, 
           grid-template-columns: 1fr 1fr;
         }
 
-        .spline-keyboard-wrapper {
-          height: 520px !important;
-        }
+.spline-keyboard-wrapper {
+  height: 620px !important;
+  overflow: visible !important;
+}
 
         /* ── Tablet (≤1024px) ── */
         @media (max-width: 1024px) {
@@ -1702,7 +1710,7 @@ Navigating complex business workflows actually requires a lot of the same calm, 
             text-align: center;
           }
           .spline-keyboard-wrapper {
-            height: 400px !important;
+    height: 450px !important
           }
           .hero-ctas {
             flex-direction: column !important;
@@ -1753,7 +1761,7 @@ Navigating complex business workflows actually requires a lot of the same calm, 
         /* ── Small phones (≤480px) ── */
         @media (max-width: 480px) {
           .spline-keyboard-wrapper {
-            height: 320px !important;
+            height: 360px !important;
           }
           .stats-grid {
             grid-template-columns: 1fr !important;
