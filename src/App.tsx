@@ -1339,7 +1339,7 @@ Navigating complex business workflows actually requires a lot of the same calm, 
         </div>
 
         {/* Certificate cards grid */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxWidth: '720px', margin: '0 auto' 
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxWidth: '720px', margin: '0' 
                     }
         }
           >
