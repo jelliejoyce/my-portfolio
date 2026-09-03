@@ -109,34 +109,6 @@ function ParallaxShapes({ scrollY }: { scrollY: number }) {
   )
 }
 
-// ─── Spline Interactive Keyboard ──────────────────────────────────────────────
-function SplineKeyboard() {
-  return (
-    <div
-      className="spline-keyboard-wrapper"
-      style={{
-        width: '100%',
-        height: '620px',
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'visible',
-        background: 'transparent',
-      }}
-    >
-      <Spline
-        scene="https://prod.spline.design/hFv1AmCuecNVkIws/scene.splinecode"
-        style={{
-          width: '100%',
-          height: '100%',
-          background: 'transparent',
-        }}
-      />
-    </div>
-  );
-}
-
 
 // ─── Workflow Mockup ──────────────────────────────────────────────────────────
 function WorkflowMockup() {
@@ -1283,7 +1255,7 @@ Navigating complex business workflows actually requires a lot of the same calm, 
             >
               {[
                 { number: '0', label: 'Missed Leads' },
-                { number: '10+', label: 'Custom Funnels Built' },
+                { number: '50+', label: 'Custom Funnels Built' },
                 { number: '24/7', label: 'Automated Systems' },
               ].map((stat, i) => (
                 <div
