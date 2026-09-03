@@ -1377,14 +1377,10 @@ Navigating complex business workflows actually requires a lot of the same calm, 
         </div>
 
         {/* Certificate cards grid */}
-        <div
-          className="certs-grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: 20,
-          }}
-        >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxWidth: '720px', margin: '0' 
+                    }
+        }
+          >
           {[
             {
               title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
@@ -1454,7 +1450,6 @@ Navigating complex business workflows actually requires a lot of the same calm, 
           ))}
         </div>
       </section>
-
 
       
       
