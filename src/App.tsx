@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import Spline from '@splinetool/react-spline'
 
 // ─── Floating Geometric Background ───────────────────────────────────────────
 function ParallaxShapes({ scrollY }: { scrollY: number }) {
@@ -108,7 +107,6 @@ function ParallaxShapes({ scrollY }: { scrollY: number }) {
     </div>
   )
 }
-
 
 // ─── Workflow Mockup ──────────────────────────────────────────────────────────
 function WorkflowMockup() {
@@ -456,7 +454,7 @@ function Nav({ scrollY }: { scrollY: number }) {
   )
 }
 
-// ─── Certificate Component (Minimalist Row Layout) ─────────────────────────
+// ─── Certificate Card ────────────────────────────────────────────────────────
 interface CertCardProps {
   title: string
   issuer: string
@@ -467,7 +465,6 @@ interface CertCardProps {
 
 function CertCard({ title, issuer, date, url, accent }: CertCardProps) {
   const [hovered, setHovered] = useState(false)
-
   return (
     <a
       href={url}
@@ -475,69 +472,108 @@ function CertCard({ title, issuer, date, url, accent }: CertCardProps) {
       rel="noopener noreferrer"
       style={{
         display: 'flex',
-        alignItems: 'left',
-        justifyContent: 'space-between',
-        padding: '18px 20px',
+        flexDirection: 'column',
         textDecoration: 'none',
-        borderBottom: '1px solid #E4E0D8',
-        borderRadius: 8,
-        background: hovered ? 'rgba(0, 0, 0, 0.025)' : 'transparent',
-        transition: 'background 0.2s ease',
+        background: '#FFFFFF',
+        border: `1px solid ${hovered ? accent : '#E4E0D8'}`,
+        borderRadius: 16,
+        overflow: 'hidden',
+        transition: 'border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease',
+        boxShadow: hovered
+          ? `0 16px 40px rgba(0,0,0,0.08), 0 0 0 1px ${accent}`
+          : '0 2px 10px rgba(0,0,0,0.04)',
+        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Left Column: Title & Issuer */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <span
+      {/* Accent strip + icon */}
+      <div
+        style={{
+          height: 72,
+          background: `linear-gradient(135deg, ${accent}66 0%, ${accent}22 100%)`,
+          display: 'flex',
+          alignItems: 'center',
+          paddingLeft: 20,
+          gap: 12,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Subtle dot grid */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `radial-gradient(circle, ${accent}55 1px, transparent 1px)`,
+            backgroundSize: '16px 16px',
+          }}
+        />
+        {/* Certificate badge icon */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            width: 40,
+            height: 40,
+            borderRadius: 10,
+            background: '#FFFFFF',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            flexShrink: 0,
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B9B78" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="8" r="6"/>
+            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+        </div>
+        {/* Link arrow */}
+        <div style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9B9890" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7 17 17 7M7 7h10v10"/>
+          </svg>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ padding: '18px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <p
           style={{
             fontFamily: 'var(--font-display)',
             fontSize: '1rem',
-            fontWeight: 500,
-            color: hovered ? accent : '#1C1C18',
-            transition: 'color 0.2s ease',
+            color: '#1C1C18',
+            lineHeight: 1.3,
+            marginBottom: 4,
           }}
         >
           {title}
-        </span>
-        <span
+        </p>
+        <p
           style={{
             fontFamily: 'var(--font-sans)',
             fontSize: '0.85rem',
             color: '#6B6860',
+            fontWeight: 400,
           }}
         >
           {issuer}
-        </span>
-      </div>
-
-      {/* Right Column: Date & External Link Arrow */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
-        <span
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.8rem',
-            color: '#9B9890',
-          }}
-        >
-          {date}
-        </span>
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke={hovered ? accent : '#9B9890'}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{
-            transform: hovered ? 'translate(2px, -2px)' : 'none',
-            transition: 'transform 0.2s ease, stroke 0.2s ease',
-          }}
-        >
-          <path d="M7 17L17 7M7 7h10v10" />
-        </svg>
+        </p>
+        <div style={{ marginTop: 'auto', paddingTop: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: accent, flexShrink: 0 }} />
+          <span
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.75rem',
+              color: '#9B9890',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {date}
+          </span>
+        </div>
       </div>
     </a>
   )
@@ -827,24 +863,14 @@ export default function App() {
           zIndex: 1,
           minHeight: '100vh',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          textAlign: 'center',
           padding: '120px 40px 80px',
         }}
       >
-        <div
-          className="hero-grid"
-          style={{
-            width: '100%',
-            maxWidth: '1400px',
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '60px',
-            alignItems: 'center',
-          }}
-        >
-          <div style={{ minWidth: 0 }}>
-            {/* Role pill */}
+        {/* Role pill */}
         <div
           className="animate-fade-in"
           style={{
@@ -887,11 +913,11 @@ export default function App() {
           className="animate-fade-up delay-100"
           style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(2rem, 5vw, 3rem)',
+            fontSize: 'clamp(3rem, 7vw, 5.5rem)',
             color: '#1C1C18',
-            lineHeight: 1,
+            lineHeight: 1.08,
             letterSpacing: '-0.02em',
-            maxWidth: 720,
+            maxWidth: 520,
             marginBottom: 20,
           }}
         >
@@ -907,10 +933,10 @@ export default function App() {
             fontFamily: 'var(--font-sans)',
             fontSize: '.8rem',
             color: '#6B6860',
-            maxWidth: 500,
+            maxWidth: 300,
             lineHeight: 1.7,
             marginBottom: 48,
-            fontWeight: 200,
+            fontWeight: 300,
           }}
         >
           Automating the repetitive so your business captures, nurtures, and closes leads — without
@@ -920,7 +946,7 @@ export default function App() {
         {/* CTA buttons */}
         <div
           className="hero-ctas animate-fade-up delay-300"
-          style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'flex-start', marginBottom: 80 }}
+          style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 80 }}
         >
           <a
             href="#work"
@@ -975,16 +1001,9 @@ export default function App() {
           </a>
         </div>
 
-            {/* Workflow mockup */}
-            <div className="animate-fade-up delay-400" style={{ display: 'flex', justifyContent: 'center' }}>
-              <WorkflowMockup />
-            </div>
-          </div>
-
-          {/* Interactive Spline keyboard */}
-          <div className="animate-fade-in delay-300" style={{ minWidth: 0 }}>
-            <SplineKeyboard />
-          </div>
+        {/* Workflow mockup */}
+        <div className="animate-fade-up delay-400" style={{ display: 'flex', justifyContent: 'center' }}>
+          <WorkflowMockup />
         </div>
 
         {/* Scroll cue */}
@@ -1255,7 +1274,7 @@ Navigating complex business workflows actually requires a lot of the same calm, 
             >
               {[
                 { number: '0', label: 'Missed Leads' },
-                { number: '50+', label: 'Custom Funnels Built' },
+                { number: '10+', label: 'Custom Funnels Built' },
                 { number: '24/7', label: 'Automated Systems' },
               ].map((stat, i) => (
                 <div
@@ -1358,10 +1377,14 @@ Navigating complex business workflows actually requires a lot of the same calm, 
         </div>
 
         {/* Certificate cards grid */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxWidth: '720px', margin: '0' 
-                    }
-        }
-          >
+        <div
+          className="certs-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: 20,
+          }}
+        >
           {[
             {
               title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
@@ -1634,26 +1657,8 @@ Navigating complex business workflows actually requires a lot of the same calm, 
 
       {/* Responsive styles */}
       <style>{`
-        /* ── Hero + Spline ── */
-        .hero-grid {
-          grid-template-columns: 1fr 1fr;
-        }
-
-.spline-keyboard-wrapper {
-  height: 620px !important;
-  overflow: visible !important;
-}
-
         /* ── Tablet (≤1024px) ── */
         @media (max-width: 1024px) {
-          .hero-grid {
-            grid-template-columns: 1fr 0.9fr !important;
-            gap: 35px !important;
-          }
-          .spline-keyboard-wrapper {
-            height: 450px !important;
-          }
-
           .about-grid {
             grid-template-columns: 1fr !important;
             gap: 48px !important;
@@ -1675,14 +1680,6 @@ Navigating complex business workflows actually requires a lot of the same calm, 
           .hero-section {
             padding: 100px 24px 60px !important;
             min-height: auto !important;
-          }
-          .hero-grid {
-            grid-template-columns: 1fr !important;
-            gap: 20px !important;
-            text-align: center;
-          }
-          .spline-keyboard-wrapper {
-    height: 450px !important
           }
           .hero-ctas {
             flex-direction: column !important;
@@ -1732,9 +1729,6 @@ Navigating complex business workflows actually requires a lot of the same calm, 
 
         /* ── Small phones (≤480px) ── */
         @media (max-width: 480px) {
-          .spline-keyboard-wrapper {
-            height: 360px !important;
-          }
           .stats-grid {
             grid-template-columns: 1fr !important;
           }
