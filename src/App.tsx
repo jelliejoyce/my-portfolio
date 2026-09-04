@@ -1322,127 +1322,137 @@ Navigating complex business workflows actually requires a lot of the same calm, 
       </section>
 
 
-{/* Credentials Section */}
-<div style={{ maxWidth: '720px', margin: '0' }}>
-  <h2
-    style={{
-      fontFamily: 'var(--font-display)',
-      fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)',
-      color: '#1C1C18',
-      lineHeight: 1.15,
-      letterSpacing: '-0.015em',
-      marginBottom: 8,
-    }}
-  >
-    <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Credentials</span>
-  </h2>
-  
-  <p
-    style={{
-      fontFamily: 'var(--font-sans)',
-      fontSize: '0.9rem',
-      color: '#6B6860',
-      lineHeight: 1.6,
-      fontWeight: 300,
-      marginBottom: 32,
-    }}
-  >
-    Verified certifications & professional training
-  </p>
+{/* ── CERTIFICATES / CREDENTIALS ──────────────────────────────────── */}
+<section
+  id="certificates"
+  style={{
+    position: 'relative',
+    zIndex: 1,
+    padding: '100px 40px',
+    maxWidth: 1100,
+    margin: '0 auto',
+  }}
+>
+  <div style={{ maxWidth: '720px', margin: '0' }}>
+    <h2
+      style={{
+        fontFamily: 'var(--font-display)',
+        fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)',
+        color: '#1C1C18',
+        lineHeight: 1.15,
+        letterSpacing: '-0.015em',
+        marginBottom: 8,
+      }}
+    >
+      <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Credentials</span>
+    </h2>
 
-  {/* Minimalist List */}
-  <div style={{ display: 'flex', flexDirection: 'column' }}>
-    {[
-      {
-        title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
-        issuer: 'Google',
-        date: '2026',
-        url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414443?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
-      },
-      {
-        title: 'AI Fluency Framework & Foundations',
-        issuer: 'Anthropic',
-        date: '2026',
-        url: 'https://verify.skilljar.com/c/2drrus4jxbrv',
-      },
-      {
-        title: 'AI Capabilities and Limitations',
-        issuer: 'Anthropic',
-        date: '2026',
-        url: 'https://verify.skilljar.com/c/uhroqca7r38j',
-      },
-      {
-        title: 'Introduction to Responsible AI',
-        issuer: 'Google',
-        date: '2026',
-        url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414962?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
-      },
-      {
-        title: 'Claude 101',
-        issuer: 'Anthropic',
-        date: '2026',
-        url: 'https://verify.skilljar.com/c/6nkq7vzv5y7g',
-      },
-      {
-        title: 'Introduction to Claude Cowork',
-        issuer: 'Anthropic',
-        date: '2026',
-        url: 'https://verify.skilljar.com/c/uav39s8hemj8',
-      },
-    ].map((cert, index) => (
-      <a
-        key={index}
-        href={cert.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px 0',
-          borderBottom: '1px solid #EAE8E3',
-          textDecoration: 'none',
-          gap: '16px',
-        }}
-      >
-        <span
+    <p
+      style={{
+        fontFamily: 'var(--font-sans)',
+        fontSize: '0.9rem',
+        color: '#6B6860',
+        lineHeight: 1.6,
+        fontWeight: 300,
+        marginBottom: 32,
+      }}
+    >
+      Verified certifications & professional training
+    </p>
+
+    {/* Minimalist List */}
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {[
+        {
+          title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
+          issuer: 'Google',
+          date: '2026',
+          url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414443?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
+        },
+        {
+          title: 'AI Fluency Framework & Foundations',
+          issuer: 'Anthropic',
+          date: '2026',
+          url: 'https://verify.skilljar.com/c/2drrus4jxbrv',
+        },
+        {
+          title: 'AI Capabilities and Limitations',
+          issuer: 'Anthropic',
+          date: '2026',
+          url: 'https://verify.skilljar.com/c/uhroqca7r38j',
+        },
+        {
+          title: 'Introduction to Responsible AI',
+          issuer: 'Google',
+          date: '2026',
+          url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414962?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
+        },
+        {
+          title: 'Claude 101',
+          issuer: 'Anthropic',
+          date: '2026',
+          url: 'https://verify.skilljar.com/c/6nkq7vzv5y7g',
+        },
+        {
+          title: 'Introduction to Claude Cowork',
+          issuer: 'Anthropic',
+          date: '2026',
+          url: 'https://verify.skilljar.com/c/uav39s8hemj8',
+        },
+      ].map((cert, index) => (
+        <a
+          key={index}
+          href={cert.url}
+          target="_blank"
+          rel="noopener noreferrer"
           style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.95rem',
-            color: '#1C1C18',
-            fontWeight: 400,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '16px 0',
+            borderBottom: '1px solid #EAE8E3',
+            textDecoration: 'none',
+            gap: '16px',
           }}
         >
-          {cert.title}
-        </span>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', shrink: 0 }}>
           <span
             style={{
               fontFamily: 'var(--font-sans)',
-              fontSize: '0.8rem',
-              color: '#8A8780',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
+              fontSize: '0.95rem',
+              color: '#1C1C18',
+              fontWeight: 400,
             }}
           >
-            {cert.issuer}
+            {cert.title}
           </span>
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.8rem',
-              color: '#B5B2AA',
-            }}
-          >
-            ↗
-          </span>
-        </div>
-      </a>
-    ))}
-  </div>
-</div>
 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.8rem',
+                color: '#8A8780',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}
+            >
+              {cert.issuer}
+            </span>
+            <span
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.8rem',
+                color: '#B5B2AA',
+              }}
+            >
+              ↗
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
       
       
       {/* ── CONTACT ───────────────────────────────────────────────────────── */}
