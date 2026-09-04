@@ -184,7 +184,7 @@ function MagneticDotGrid() {
 
     const spacing = 30
     const pullRadius = 90
-    const pullStrength = 8
+    const pullStrength = 10
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
     const mouse = { x: -9999, y: -9999 }
     let dots: { ox: number; oy: number; x: number; y: number }[] = []
@@ -1471,6 +1471,9 @@ export default function App() {
               style={{
                 lineHeight: 1.1,
                 marginBottom: 26,
+                width: 'fit-content',
+                marginLeft: 'auto',
+                marginRight: 'auto',
               }}
             >
               <span
@@ -1481,6 +1484,7 @@ export default function App() {
                   fontSize: '1.3rem',
                   color: '#5B5B57',
                   marginBottom: 4,
+                  textAlign: 'left',
                 }}
               >
                 Hey there, I'm
@@ -1567,7 +1571,7 @@ export default function App() {
                 marginBottom: 22,
               }}
             >
-              ✦ "Systems that work while you sleep."
+              ✦   ✦   ✦   
             </p>
 
             {/* CTAs */}
@@ -1708,8 +1712,7 @@ export default function App() {
                 fontWeight: 300,
               }}
             >
-              Pre-configured GoHighLevel frameworks engineered to solve common business
-              bottlenecks. Built completely from scratch in my development sandbox.
+              Built completely from scratch in my development sandbox.
             </p>
           </div>
         </div>
