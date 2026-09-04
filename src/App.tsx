@@ -1,288 +1,566 @@
 import { useEffect, useRef, useState } from 'react'
 
-// ─── Floating Geometric Background ───────────────────────────────────────────
-function ParallaxShapes({ scrollY }: { scrollY: number }) {
+// ═══════════════════════════════════════════════════════════════════════════
+// DESIGN TOKENS (per blueprint — strict 2-accent system on white)
+//   bg #FFFFFF · surface #F8FAF8 · ink #1E1E1C · body #5B5B57 · border #EAEAE6
+//   green  50 #EAF6EE  200 #C9E4D0  500 #7FB08F  700 #5C9370
+//   violet 50 #F2EEFA  200 #DCCFEF  500 #B39DDB  700 #9678C9
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── useFinePointer ───────────────────────────────────────────────────────────
+// Gates every cursor-driven effect: only fires for mouse users who haven't
+// asked for reduced motion. Touch devices and reduced-motion users get the
+// static / scroll-only fallback everywhere this is checked.
+function useFinePointer() {
+  const [enabled, setEnabled] = useState(false)
+  useEffect(() => {
+    const pointerMq = window.matchMedia('(hover: hover) and (pointer: fine)')
+    const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => setEnabled(pointerMq.matches && !motionMq.matches)
+    update()
+    pointerMq.addEventListener('change', update)
+    motionMq.addEventListener('change', update)
+    return () => {
+      pointerMq.removeEventListener('change', update)
+      motionMq.removeEventListener('change', update)
+    }
+  }, [])
+  return enabled
+}
+
+// ─── Magnetic ─────────────────────────────────────────────────────────────────
+// Wraps a link/button and pulls it a few px toward the cursor when nearby.
+function Magnetic({
+  children,
+  strength = 0.3,
+  max = 6,
+}: {
+  children: React.ReactNode
+  strength?: number
+  max?: number
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const fine = useFinePointer()
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el || !fine) return
+    const handleMove = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect()
+      const relX = e.clientX - (rect.left + rect.width / 2)
+      const relY = e.clientY - (rect.top + rect.height / 2)
+      const radius = Math.max(rect.width, rect.height) * 1.6 + 24
+      const dist = Math.hypot(relX, relY)
+      if (dist < radius) {
+        const pull = 1 - dist / radius
+        const dx = Math.max(-max, Math.min(max, relX * strength * pull))
+        const dy = Math.max(-max, Math.min(max, relY * strength * pull))
+        el.style.transform = `translate(${dx}px, ${dy}px)`
+      } else {
+        el.style.transform = 'translate(0, 0)'
+      }
+    }
+    const reset = () => {
+      el.style.transform = 'translate(0, 0)'
+    }
+    window.addEventListener('mousemove', handleMove)
+    el.addEventListener('mouseleave', reset)
+    return () => {
+      window.removeEventListener('mousemove', handleMove)
+      el.removeEventListener('mouseleave', reset)
+    }
+  }, [fine, strength, max])
+
+  return (
+    <div ref={ref} style={{ display: 'inline-flex', transition: 'transform 0.2s cubic-bezier(0.2,0.8,0.2,1)' }}>
+      {children}
+    </div>
+  )
+}
+
+// ─── CustomCursor ─────────────────────────────────────────────────────────────
+function CustomCursor() {
+  const fine = useFinePointer()
+  const dotRef = useRef<HTMLDivElement>(null)
+  const target = useRef({ x: 0, y: 0 })
+  const pos = useRef({ x: 0, y: 0 })
+  const [variant, setVariant] = useState<'default' | 'link' | 'card'>('default')
+
+  useEffect(() => {
+    document.body.classList.toggle('custom-cursor-active', fine)
+    return () => document.body.classList.remove('custom-cursor-active')
+  }, [fine])
+
+  useEffect(() => {
+    if (!fine) return
+
+    const onMove = (e: MouseEvent) => {
+      target.current = { x: e.clientX, y: e.clientY }
+    }
+    window.addEventListener('mousemove', onMove)
+
+    let raf = 0
+    const loop = () => {
+      pos.current.x += (target.current.x - pos.current.x) * 0.22
+      pos.current.y += (target.current.y - pos.current.y) * 0.22
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate(${pos.current.x}px, ${pos.current.y}px) translate(-50%, -50%)`
+      }
+      raf = requestAnimationFrame(loop)
+    }
+    raf = requestAnimationFrame(loop)
+
+    const onOver = (e: MouseEvent) => {
+      const t = e.target as HTMLElement
+      if (t.closest?.('[data-cursor-card]')) setVariant('card')
+      else if (t.closest?.('a, button')) setVariant('link')
+    }
+    const onOut = (e: MouseEvent) => {
+      const t = e.target as HTMLElement
+      if (t.closest?.('[data-cursor-card]') || t.closest?.('a, button')) setVariant('default')
+    }
+    document.addEventListener('mouseover', onOver)
+    document.addEventListener('mouseout', onOut)
+
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      cancelAnimationFrame(raf)
+      document.removeEventListener('mouseover', onOver)
+      document.removeEventListener('mouseout', onOut)
+    }
+  }, [fine])
+
+  if (!fine) return null
+
+  const size = variant === 'default' ? 9 : variant === 'link' ? 26 : 46
+
+  return (
+    <div
+      ref={dotRef}
+      aria-hidden
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        background: variant === 'default' ? '#7FB08F' : 'rgba(255,255,255,0.6)',
+        border: variant === 'default' ? 'none' : `1.5px solid ${variant === 'link' ? '#B39DDB' : '#7FB08F'}`,
+        opacity: variant === 'default' ? 0.55 : 0.95,
+        pointerEvents: 'none',
+        zIndex: 999,
+        transition: 'width 0.2s ease, height 0.2s ease, background 0.2s ease, border-color 0.2s ease',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: 'var(--font-sans)',
+        fontSize: 9,
+        fontWeight: 600,
+        color: '#5C9370',
+        letterSpacing: '0.02em',
+      }}
+    >
+      {variant === 'card' ? 'View' : null}
+    </div>
+  )
+}
+
+// ─── ReactiveBackground ───────────────────────────────────────────────────────
+// Replaces the old auto-looping ParallaxShapes. Every motion here is driven
+// by scroll position (user input) or cursor position (gated to fine pointers).
+function ReactiveBackground({ scrollY }: { scrollY: number }) {
+  const fine = useFinePointer()
+  const spotRef = useRef<HTMLDivElement>(null)
+  const sageRef = useRef<HTMLDivElement>(null)
+  const lavenderRef = useRef<HTMLDivElement>(null)
+  const target = useRef({ x: 0, y: 0 })
+  const current = useRef({ x: 0, y: 0 })
+  const scrollRef = useRef(scrollY)
+  scrollRef.current = scrollY
+
+  useEffect(() => {
+    if (!fine) return
+
+    const onMove = (e: MouseEvent) => {
+      target.current = {
+        x: (e.clientX / window.innerWidth - 0.5) * 2,
+        y: (e.clientY / window.innerHeight - 0.5) * 2,
+      }
+      if (spotRef.current) {
+        spotRef.current.style.background = `radial-gradient(circle 200px at ${(e.clientX / window.innerWidth) * 100}% ${(e.clientY / window.innerHeight) * 100}%, ${e.clientX < window.innerWidth / 2 ? 'rgba(127,176,143,0.10)' : 'rgba(179,157,219,0.10)'}, transparent 70%)`
+      }
+    }
+    window.addEventListener('mousemove', onMove)
+
+    let raf = 0
+    const loop = () => {
+      current.current.x += (target.current.x - current.current.x) * 0.05
+      current.current.y += (target.current.y - current.current.y) * 0.05
+      if (sageRef.current) {
+        sageRef.current.style.transform = `translate(${current.current.x * 18}px, ${scrollRef.current * 0.08 + current.current.y * 14}px)`
+      }
+      if (lavenderRef.current) {
+        lavenderRef.current.style.transform = `translate(${current.current.x * -14}px, ${scrollRef.current * 0.05 + current.current.y * -10}px)`
+      }
+      raf = requestAnimationFrame(loop)
+    }
+    raf = requestAnimationFrame(loop)
+
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      cancelAnimationFrame(raf)
+    }
+  }, [fine])
+
+  // Scroll-only fallback for touch / reduced-motion
+  useEffect(() => {
+    if (fine) return
+    if (sageRef.current) sageRef.current.style.transform = `translateY(${scrollY * 0.08}px)`
+    if (lavenderRef.current) lavenderRef.current.style.transform = `translateY(${scrollY * 0.05}px)`
+  }, [scrollY, fine])
+
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden" style={{ zIndex: 0 }}>
-      {/* Large sage blob */}
+      {/* base dot grid */}
       <div
-        className="animate-float-a absolute rounded-full opacity-30"
         style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'radial-gradient(circle, #1E1E1C 1px, transparent 1px)',
+          backgroundSize: '30px 30px',
+          opacity: 0.05,
+        }}
+      />
+      {/* cursor spotlight, brightens/tints the grid near the pointer */}
+      {fine && (
+        <div
+          ref={spotRef}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(circle 200px at 50% 30%, rgba(127,176,143,0.10), transparent 70%)',
+          }}
+        />
+      )}
+      {/* sage blob */}
+      <div
+        ref={sageRef}
+        style={{
+          position: 'absolute',
           width: 520,
           height: 520,
-          background: 'radial-gradient(circle at 40% 40%, #B8D4BF, #8BA896)',
-          top: -120,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle at 40% 40%, #C9E4D0, #7FB08F)',
+          top: -140,
           right: -100,
-          filter: 'blur(60px)',
-          transform: `translateY(${scrollY * 0.08}px)`,
-          transition: 'transform 0.1s linear',
+          filter: 'blur(75px)',
+          opacity: 0.32,
         }}
       />
-      {/* Lavender blob */}
+      {/* lavender blob */}
       <div
-        className="animate-float-b absolute rounded-full opacity-25"
+        ref={lavenderRef}
         style={{
+          position: 'absolute',
           width: 380,
           height: 380,
-          background: 'radial-gradient(circle at 60% 30%, #D5CAEB, #C4B5D4)',
-          top: 300,
-          left: -80,
-          filter: 'blur(50px)',
-          transform: `translateY(${scrollY * 0.05}px)`,
-          transition: 'transform 0.1s linear',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle at 60% 30%, #DCCFEF, #B39DDB)',
+          top: 320,
+          left: -90,
+          filter: 'blur(60px)',
+          opacity: 0.28,
         }}
       />
-      {/* Cream accent blob */}
+      {/* static geometric accents, scroll-drift only */}
       <div
-        className="animate-float-c absolute rounded-full opacity-40"
         style={{
-          width: 260,
-          height: 260,
-          background: 'radial-gradient(circle at 50% 50%, #F5E9CC, #EDD9AA)',
-          top: 600,
-          right: '15%',
-          filter: 'blur(40px)',
-          transform: `translateY(${scrollY * 0.12}px)`,
-          transition: 'transform 0.1s linear',
-        }}
-      />
-      {/* Small geometric square */}
-      <div
-        className="animate-float-a absolute opacity-10"
-        style={{
+          position: 'absolute',
           width: 80,
           height: 80,
-          border: '2px solid #6B9B78',
-          borderRadius: '12px',
-          top: 180,
+          border: '2px solid #7FB08F',
+          borderRadius: 12,
+          top: 200,
           right: '25%',
-          transform: `translateY(${scrollY * 0.15}px) rotate(28deg)`,
-          transition: 'transform 0.1s linear',
+          opacity: 0.08,
+          transform: `translateY(${scrollY * 0.1}px) rotate(28deg)`,
         }}
       />
-      {/* Dot cluster */}
       <div
-        className="animate-float-b absolute opacity-20"
         style={{
+          position: 'absolute',
           width: 120,
           height: 120,
-          backgroundImage: 'radial-gradient(circle, #6B9B78 1.5px, transparent 1.5px)',
+          backgroundImage: 'radial-gradient(circle, #7FB08F 1.5px, transparent 1.5px)',
           backgroundSize: '14px 14px',
-          top: 440,
+          top: 460,
           right: '8%',
+          opacity: 0.15,
           transform: `translateY(${scrollY * 0.09}px)`,
-          transition: 'transform 0.1s linear',
         }}
       />
-      {/* Triangle outline */}
       <svg
-        className="animate-float-c absolute opacity-10"
         style={{
+          position: 'absolute',
           width: 100,
           height: 100,
-          top: 900,
+          top: 920,
           left: '12%',
-          transform: `translateY(${scrollY * 0.07}px)`,
-          transition: 'transform 0.1s linear',
+          opacity: 0.09,
+          transform: `translateY(${scrollY * 0.06}px)`,
         }}
         viewBox="0 0 100 100"
         fill="none"
       >
-        <polygon points="50,8 92,85 8,85" stroke="#C4B5D4" strokeWidth="2" />
+        <polygon points="50,8 92,85 8,85" stroke="#B39DDB" strokeWidth="2" />
       </svg>
-      {/* Small circle outline */}
       <div
-        className="animate-float-b absolute opacity-15"
-        style={{
-          width: 56,
-          height: 56,
-          border: '2px solid #D5CAEB',
-          borderRadius: '50%',
-          top: 1200,
-          right: '30%',
-          transform: `translateY(${scrollY * 0.11}px)`,
-          transition: 'transform 0.1s linear',
-        }}
-      />
-    </div>
-  )
-}
-
-// ─── Workflow Mockup ──────────────────────────────────────────────────────────
-function WorkflowMockup() {
-  const steps = [
-    { icon: '⚡', label: 'Lead Captured', color: '#6B9B78' },
-    { icon: '✉️', label: 'Email Triggered', color: '#9B85C4' },
-    { icon: '📅', label: 'Calendar Booked', color: '#C4935A' },
-    { icon: '✓', label: 'Deal Closed', color: '#5A8A67' },
-  ]
-  return (
-    <div className="relative" style={{ maxWidth: 380 }}>
-      {/* Ambient color glow behind the card so it doesn't sit flat on the page */}
-      <div
-        aria-hidden
         style={{
           position: 'absolute',
-          inset: '-30px',
-          background:
-            'radial-gradient(circle at 30% 20%, rgba(107,155,120,0.35), transparent 60%), radial-gradient(circle at 80% 80%, rgba(155,133,196,0.3), transparent 55%)',
-          filter: 'blur(30px)',
-          zIndex: -1,
+          width: 56,
+          height: 56,
+          border: '2px solid #DCCFEF',
+          borderRadius: '50%',
+          top: 1220,
+          right: '30%',
+          opacity: 0.12,
+          transform: `translateY(${scrollY * 0.11}px)`,
         }}
       />
-      <div
-        className="relative rounded-2xl overflow-hidden"
-        style={{
-          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F6F2 100%)',
-          border: '1px solid #E4E0D8',
-          padding: '28px',
-          boxShadow: '0 30px 60px -20px rgba(107,155,120,0.28), 0 8px 24px rgba(0,0,0,0.06)',
-        }}
-      >
-        {/* Header bar */}
-        <div className="flex items-center gap-2 mb-6">
-          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#F08B8B' }} />
-          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#F0C158' }} />
-          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#6B9B78' }} />
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: 11,
-              color: '#9B9890',
-              marginLeft: 8,
-              letterSpacing: '0.05em',
-            }}
-          >
-            automation_workflow.ghl
-          </span>
-        </div>
-
-        {/* Flow steps */}
-        <div className="flex flex-col gap-3">
-          {steps.map((step, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: `linear-gradient(135deg, ${step.color} 0%, ${step.color}CC 100%)`,
-                  boxShadow: `0 4px 10px ${step.color}55`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 16,
-                  flexShrink: 0,
-                }}
-              >
-                {step.icon}
-              </div>
-              <div
-                style={{
-                  flex: 1,
-                  height: 8,
-                  borderRadius: 4,
-                  background: step.color,
-                  opacity: 0.85,
-                }}
-              />
-              <span
-                style={{
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: '#6B6860',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {step.label}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* Footer stat */}
-        <div
-          className="mt-6 flex items-center justify-between rounded-xl px-4 py-3"
-          style={{ background: '#F0F7F2' }}
-        >
-          <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#9B9890' }}>
-            Response time
-          </span>
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: 13,
-              fontWeight: 600,
-              color: '#6B9B78',
-            }}
-          >
-            &lt; 2 min
-          </span>
-        </div>
-      </div>
     </div>
   )
 }
 
-// ─── Concept Card ─────────────────────────────────────────────────────────────
-interface ConceptCardProps {
+// ─── InteractiveName ──────────────────────────────────────────────────────────
+// Letter-by-letter hover response — each character lifts and shifts toward
+// the accent colors when the name is hovered. Purely hover-triggered, resets
+// on mouse-leave, no auto-loop.
+function InteractiveName({ text }: { text: string }) {
+  const [hovered, setHovered] = useState(false)
+  const letters = text.split('')
+  return (
+    <span
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ display: 'inline-block', cursor: 'default' }}
+    >
+      {letters.map((ch, i) => (
+        <span
+          key={i}
+          style={{
+            display: 'inline-block',
+            transform: hovered ? `translateY(-${4 + (i % 3) * 3}px)` : 'translateY(0)',
+            color: hovered ? (i % 2 === 0 ? '#7FB08F' : '#9678C9') : '#1E1E1C',
+            transition: `transform 0.4s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.025}s, color 0.35s ease ${i * 0.025}s`,
+          }}
+        >
+          {ch === ' ' ? '\u00A0' : ch}
+        </span>
+      ))}
+    </span>
+  )
+}
+
+// ─── HeroPhoto ────────────────────────────────────────────────────────────────
+// Styled placeholder (swap for a real photo later). Glow shifts toward the
+// cursor when hovered; static gradient on touch devices.
+function HeroPhoto() {
+  const ref = useRef<HTMLDivElement>(null)
+  const fine = useFinePointer()
+
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!fine || !ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    ref.current.style.background = `radial-gradient(circle at ${x}% ${y}%, rgba(127,176,143,0.4), rgba(179,157,219,0.28) 55%, #F8FAF8 100%)`
+  }
+  const handleLeave = () => {
+    if (!ref.current) return
+    ref.current.style.background = 'radial-gradient(circle at 50% 30%, rgba(127,176,143,0.4), rgba(179,157,219,0.28) 55%, #F8FAF8 100%)'
+  }
+
+  return (
+    <div
+      ref={ref}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+      className="hero-photo animate-fade-in"
+      style={{
+        position: 'relative',
+        borderRadius: 28,
+        aspectRatio: '4 / 5',
+        width: '100%',
+        maxWidth: 300,
+        background: 'radial-gradient(circle at 50% 30%, rgba(127,176,143,0.4), rgba(179,157,219,0.28) 55%, #F8FAF8 100%)',
+        border: '1.5px dashed #C9E4D0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 72,
+        transition: 'background 0.2s ease',
+      }}
+      title="Replace with your photo"
+    >
+      🪴
+    </div>
+  )
+}
+
+// ─── WorkflowMini ─────────────────────────────────────────────────────────────
+// A small, per-project flow diagram reused from the original WorkflowMockup —
+// relocated here from the hero, per the blueprint. Steps play in, staggered,
+// once when the card first scrolls into view (never on a loop).
+interface WorkflowStep {
+  icon: string
+  label: string
+}
+function WorkflowMini({ steps, accent, play }: { steps: WorkflowStep[]; accent: string; play: boolean }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {steps.map((step, i) => (
+        <div
+          key={step.label}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            opacity: play ? 1 : 0,
+            transform: play ? 'translateX(0)' : 'translateX(-10px)',
+            transition: `opacity 0.45s ease ${i * 0.12}s, transform 0.45s ease ${i * 0.12}s`,
+          }}
+        >
+          <span
+            style={{
+              width: 26,
+              height: 26,
+              borderRadius: 8,
+              background: accent,
+              boxShadow: `0 4px 10px ${accent}55`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 12,
+              flexShrink: 0,
+            }}
+          >
+            {step.icon}
+          </span>
+          <span
+            style={{
+              flex: 1,
+              height: 6,
+              borderRadius: 3,
+              background: accent,
+              opacity: 0.8,
+            }}
+          />
+          <span
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.72rem',
+              fontWeight: 500,
+              color: '#5B5B57',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {step.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── ProjectCard ──────────────────────────────────────────────────────────────
+interface ProjectCardProps {
   title: string
   objective: string
   architecture: string
   accent: string
-  icon: string
-  delay: string
+  steps: WorkflowStep[]
+  index: number
 }
+function ProjectCard({ title, objective, architecture, accent, steps, index }: ProjectCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  const [played, setPlayed] = useState(false)
+  const fine = useFinePointer()
 
-function ConceptCard({ title, objective, architecture, accent, icon, delay }: ConceptCardProps) {
-  const [hovered, setHovered] = useState(false)
+  useEffect(() => {
+    const el = cardRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => entry.isIntersecting && setPlayed(true)),
+      { threshold: 0.45 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!fine || !cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const px = (e.clientX - rect.left) / rect.width - 0.5
+    const py = (e.clientY - rect.top) / rect.height - 0.5
+    setTilt({ x: py * -5, y: px * 5 })
+  }
+  const handleLeave = () => setTilt({ x: 0, y: 0 })
+
   return (
     <div
-      className={`animate-fade-up ${delay} rounded-2xl overflow-hidden cursor-default`}
+      ref={cardRef}
+      data-cursor-card
+      className="project-card animate-fade-up"
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
       style={{
+        flex: '0 0 320px',
+        scrollSnapAlign: 'start',
+        borderRadius: 20,
         background: '#FFFFFF',
-        border: `1px solid ${hovered ? accent : '#E4E0D8'}`,
-        transition: 'border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease',
-        boxShadow: hovered
-          ? `0 20px 48px rgba(0,0,0,0.08), 0 0 0 1px ${accent}`
-          : '0 2px 12px rgba(0,0,0,0.04)',
-        transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
+        border: '1px solid #EAEAE6',
+        overflow: 'hidden',
+        transform: `perspective(900px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+        transition: 'transform 0.25s ease-out, box-shadow 0.3s ease, border-color 0.3s ease',
+        boxShadow: '0 24px 48px rgba(30,30,28,0.06)',
       }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
-      {/* Card visual header */}
+      {/* Diagram header */}
       <div
         style={{
-          height: 160,
-          background: `linear-gradient(135deg, ${accent}55 0%, ${accent}22 100%)`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 48,
+          padding: '22px 22px 20px',
+          background: '#F8FAF8',
           position: 'relative',
-          overflow: 'hidden',
+          borderBottom: '1px solid #EAEAE6',
         }}
       >
-        {/* Grid decoration */}
-        <div
+        <span
           style={{
             position: 'absolute',
-            inset: 0,
-            backgroundImage: `linear-gradient(${accent}33 1px, transparent 1px), linear-gradient(90deg, ${accent}33 1px, transparent 1px)`,
-            backgroundSize: '28px 28px',
+            top: 18,
+            right: 20,
+            fontFamily: "'Trispace', monospace",
+            fontSize: '0.75rem',
+            color: accent,
+            letterSpacing: '0.06em',
           }}
-        />
-        <span style={{ position: 'relative', zIndex: 1 }}>{icon}</span>
+        >
+          {String(index + 1).padStart(2, '0')}
+        </span>
+        <div style={{ maxWidth: 210 }}>
+          <WorkflowMini steps={steps} accent={accent} play={played} />
+        </div>
       </div>
 
-      <div style={{ padding: '24px' }}>
+      {/* Copy */}
+      <div style={{ padding: '22px' }}>
         <h3
           style={{
             fontFamily: 'var(--font-display)',
-            fontSize: '1.2rem',
-            color: '#1C1C18',
+            fontSize: '1.1rem',
+            color: '#1E1E1C',
             marginBottom: 10,
             lineHeight: 1.3,
           }}
@@ -292,38 +570,20 @@ function ConceptCard({ title, objective, architecture, accent, icon, delay }: Co
         <p
           style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: '0.875rem',
-            color: '#6B6860',
+            fontSize: '0.85rem',
+            color: '#5B5B57',
             lineHeight: 1.65,
-            marginBottom: 16,
+            marginBottom: 14,
           }}
         >
           {objective}
         </p>
-        <div
-          style={{
-            paddingTop: 14,
-            borderTop: '1px solid #E4E0D8',
-          }}
-        >
+        <div style={{ paddingTop: 12, borderTop: '1px solid #EAEAE6' }}>
           <p
             style={{
               fontFamily: 'var(--font-sans)',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              color: '#9B9890',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              marginBottom: 6,
-            }}
-          >
-            Key Architecture
-          </p>
-          <p
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.82rem',
-              color: '#4A4A46',
+              fontSize: '0.78rem',
+              color: '#8A8983',
               lineHeight: 1.5,
             }}
           >
@@ -335,7 +595,93 @@ function ConceptCard({ title, objective, architecture, accent, icon, delay }: Co
   )
 }
 
-// ─── Skill Chip ───────────────────────────────────────────────────────────────
+// ─── ProjectsTrack ────────────────────────────────────────────────────────────
+// Horizontal, scroll-snapped rail. Vertical wheel input over the section is
+// redirected to horizontal scroll (desktop only); touch devices get native
+// overflow-x swiping for free.
+function ProjectsTrack({ projects }: { projects: ProjectCardProps[] }) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const fine = useFinePointer()
+
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el || !fine) return
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault()
+        el.scrollLeft += e.deltaY
+      }
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [fine])
+
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el) return
+    const onScroll = () => {
+      const cardWidth = el.scrollWidth / projects.length
+      const idx = Math.round(el.scrollLeft / cardWidth)
+      setActiveIndex(Math.max(0, Math.min(projects.length - 1, idx)))
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+  }, [projects.length])
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <div
+        ref={trackRef}
+        className="projects-track"
+        style={{
+          display: 'flex',
+          gap: 24,
+          overflowX: 'auto',
+          scrollSnapType: 'x mandatory',
+          paddingBottom: 8,
+          paddingRight: 40,
+        }}
+      >
+        {projects.map((p, i) => (
+          <ProjectCard key={p.title} {...p} index={i} />
+        ))}
+      </div>
+
+      {/* fade-out edge cue */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 8,
+          width: 90,
+          background: 'linear-gradient(90deg, transparent, #FFFFFF)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* progress dots */}
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 28 }}>
+        {projects.map((_, i) => (
+          <span
+            key={i}
+            style={{
+              width: activeIndex === i ? 22 : 6,
+              height: 6,
+              borderRadius: 3,
+              background: activeIndex === i ? '#7FB08F' : '#EAEAE6',
+              transition: 'width 0.25s ease, background 0.25s ease',
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── SkillChip ────────────────────────────────────────────────────────────────
 function SkillChip({ label }: { label: string }) {
   return (
     <span
@@ -346,8 +692,8 @@ function SkillChip({ label }: { label: string }) {
         fontSize: '0.75rem',
         fontWeight: 500,
         color: '#4A5C4E',
-        background: '#E8F0EA',
-        border: '1px solid #C8DCC0',
+        background: '#EAF6EE',
+        border: '1px solid #C9E4D0',
         borderRadius: 100,
         padding: '4px 12px',
       }}
@@ -357,7 +703,7 @@ function SkillChip({ label }: { label: string }) {
   )
 }
 
-// ─── Stat Block ───────────────────────────────────────────────────────────────
+// ─── StatBlock ────────────────────────────────────────────────────────────────
 function StatBlock({ number, label }: { number: string; label: string }) {
   return (
     <div style={{ textAlign: 'center', padding: '16px 10px' }}>
@@ -365,7 +711,7 @@ function StatBlock({ number, label }: { number: string; label: string }) {
         style={{
           fontFamily: 'var(--font-display)',
           fontSize: '2rem',
-          color: '#6B9B78',
+          color: '#7FB08F',
           lineHeight: 1,
           marginBottom: 5,
         }}
@@ -376,7 +722,7 @@ function StatBlock({ number, label }: { number: string; label: string }) {
         style={{
           fontFamily: 'var(--font-sans)',
           fontSize: '0.78rem',
-          color: '#6B6860',
+          color: '#5B5B57',
           fontWeight: 400,
           letterSpacing: '0.02em',
         }}
@@ -388,143 +734,220 @@ function StatBlock({ number, label }: { number: string; label: string }) {
 }
 
 // ─── Nav ──────────────────────────────────────────────────────────────────────
-function Nav({ scrollY }: { scrollY: number }) {
-  const elevated = scrollY > 40
+// Floating, edge-detached capsule. A pastel-green dot slides beneath the
+// active section link (IntersectionObserver-driven). Links are magnetic.
+function Nav() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const navItems = ['Work', 'About', 'Certs', 'Contact']
+  const [scrolled, setScrolled] = useState(false)
+  const [active, setActive] = useState('work')
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({})
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null)
+
+  const navItems = [
+    { key: 'work', label: 'Work' },
+    { key: 'about', label: 'About' },
+    { key: 'certificates', label: 'Certs' },
+    { key: 'contact', label: 'Contact' },
+  ]
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    const sections = navItems.map((n) => document.getElementById(n.key)).filter(Boolean) as HTMLElement[]
+    if (sections.length < navItems.length) return
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => entry.isIntersecting && setActive(entry.target.id)),
+      { rootMargin: '-45% 0px -45% 0px', threshold: 0 }
+    )
+    sections.forEach((s) => observer.observe(s))
+    return () => observer.disconnect()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    const el = linkRefs.current[active]
+    if (el && wrapRef.current) {
+      const wrapRect = wrapRef.current.getBoundingClientRect()
+      const elRect = el.getBoundingClientRect()
+      setIndicator({ left: elRect.left - wrapRect.left, width: elRect.width })
+    }
+  }, [active, menuOpen])
 
   return (
     <>
-      <nav
+      <div
         style={{
           position: 'fixed',
-          top: 0,
+          top: 18,
           left: 0,
           right: 0,
           zIndex: 50,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 40px',
-          height: 64,
-          background: elevated || menuOpen ? 'rgba(250, 250, 246, 0.92)' : 'transparent',
-          backdropFilter: elevated || menuOpen ? 'blur(12px)' : 'none',
-          borderBottom: elevated || menuOpen ? '1px solid #E4E0D8' : '1px solid transparent',
-          transition: 'background 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease',
+          justifyContent: 'center',
+          padding: '0 20px',
         }}
       >
-        <span
+        <nav
           style={{
-            fontFamily: "'Trispace', monospace",
-            fontSize: '1rem',
-            fontWeight: 300,
-            color: '#1C1C18',
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 28,
+            width: '100%',
+            maxWidth: 660,
+            background: 'rgba(255,255,255,0.88)',
+            backdropFilter: 'blur(14px)',
+            border: '1px solid #EAEAE6',
+            borderRadius: 100,
+            padding: '10px 12px 10px 22px',
+            boxShadow: scrolled ? '0 14px 34px rgba(30,30,28,0.09)' : '0 4px 16px rgba(30,30,28,0.04)',
+            transition: 'box-shadow 0.3s ease',
           }}
         >
-          jellie joyce andaya
-        </span>
-        <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-          {navItems.map((item) => (
-            <a
-              key={item}
-              href={`#${item === 'Certs' ? 'certificates' : item.toLowerCase()}`}
-              style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                color: '#4A4A46',
-                textDecoration: 'none',
-                transition: 'color 0.2s ease',
-              }}
-              onMouseEnter={(e) => ((e.target as HTMLElement).style.color = '#6B9B78')}
-              onMouseLeave={(e) => ((e.target as HTMLElement).style.color = '#4A4A46')}
-            >
-              {item}
-            </a>
-          ))}
-          <a
-            href="#contact"
+          <span
             style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              color: '#FFFFFF',
-              background: '#6B9B78',
-              borderRadius: 100,
-              padding: '8px 20px',
-              textDecoration: 'none',
-              transition: 'background 0.2s ease, transform 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              ;(e.target as HTMLElement).style.background = '#5A8A67'
-              ;(e.target as HTMLElement).style.transform = 'scale(1.03)'
-            }}
-            onMouseLeave={(e) => {
-              ;(e.target as HTMLElement).style.background = '#6B9B78'
-              ;(e.target as HTMLElement).style.transform = 'scale(1)'
+              fontFamily: "'Trispace', monospace",
+              fontSize: '0.95rem',
+              fontWeight: 400,
+              color: '#1E1E1C',
+              letterSpacing: '0.04em',
+              flexShrink: 0,
             }}
           >
-            Let's Talk
-          </a>
-        </div>
+            jellie <span style={{ color: '#7FB08F' }}>✦</span>
+          </span>
 
-        {/* Mobile hamburger toggle */}
-        <button
-          className="nav-toggle"
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={menuOpen}
-          style={{
-            display: 'none',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 5,
-            width: 36,
-            height: 36,
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0,
-          }}
-        >
-          <span
+          <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 26 }}>
+            <div ref={wrapRef} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 26 }}>
+              {navItems.map((item) => (
+                <Magnetic key={item.key} strength={0.3} max={5}>
+                  <a
+                    ref={(el) => {
+                      linkRefs.current[item.key] = el
+                    }}
+                    href={`#${item.key}`}
+                    style={{
+                      fontFamily: 'var(--font-sans)',
+                      fontSize: '0.85rem',
+                      fontWeight: 500,
+                      color: active === item.key ? '#1E1E1C' : '#5B5B57',
+                      textDecoration: 'none',
+                      transition: 'color 0.2s ease',
+                    }}
+                  >
+                    {item.label}
+                  </a>
+                </Magnetic>
+              ))}
+              {indicator && (
+                <span
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    bottom: -9,
+                    left: indicator.left,
+                    width: indicator.width,
+                    height: 3,
+                    borderRadius: 2,
+                    background: '#7FB08F',
+                    transition: 'left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1)',
+                  }}
+                />
+              )}
+            </div>
+
+            <Magnetic strength={0.25} max={5}>
+              <a
+                href="#contact"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  color: '#FFFFFF',
+                  background: '#7FB08F',
+                  borderRadius: 100,
+                  padding: '9px 18px',
+                  textDecoration: 'none',
+                  transition: 'background 0.2s ease, transform 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  ;(e.currentTarget as HTMLElement).style.background = '#5C9370'
+                }}
+                onMouseLeave={(e) => {
+                  ;(e.currentTarget as HTMLElement).style.background = '#7FB08F'
+                }}
+              >
+                Let's Talk
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#DCCFEF', flexShrink: 0 }} />
+              </a>
+            </Magnetic>
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className="nav-toggle"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
             style={{
-              display: 'block',
-              width: 20,
-              height: 2,
-              borderRadius: 2,
-              background: '#1C1C18',
-              transition: 'transform 0.25s ease, opacity 0.25s ease',
-              transform: menuOpen ? 'translateY(7px) rotate(45deg)' : 'none',
+              display: 'none',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: 5,
+              width: 32,
+              height: 32,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+              flexShrink: 0,
             }}
-          />
-          <span
-            style={{
-              display: 'block',
-              width: 20,
-              height: 2,
-              borderRadius: 2,
-              background: '#1C1C18',
-              transition: 'opacity 0.2s ease',
-              opacity: menuOpen ? 0 : 1,
-            }}
-          />
-          <span
-            style={{
-              display: 'block',
-              width: 20,
-              height: 2,
-              borderRadius: 2,
-              background: '#1C1C18',
-              transition: 'transform 0.25s ease, opacity 0.25s ease',
-              transform: menuOpen ? 'translateY(-7px) rotate(-45deg)' : 'none',
-            }}
-          />
-        </button>
-      </nav>
+          >
+            <span
+              style={{
+                display: 'block',
+                width: 18,
+                height: 2,
+                borderRadius: 2,
+                background: '#1E1E1C',
+                transition: 'transform 0.25s ease, opacity 0.25s ease',
+                transform: menuOpen ? 'translateY(7px) rotate(45deg)' : 'none',
+              }}
+            />
+            <span
+              style={{
+                display: 'block',
+                width: 18,
+                height: 2,
+                borderRadius: 2,
+                background: '#1E1E1C',
+                transition: 'opacity 0.2s ease',
+                opacity: menuOpen ? 0 : 1,
+              }}
+            />
+            <span
+              style={{
+                display: 'block',
+                width: 18,
+                height: 2,
+                borderRadius: 2,
+                background: '#1E1E1C',
+                transition: 'transform 0.25s ease, opacity 0.25s ease',
+                transform: menuOpen ? 'translateY(-7px) rotate(-45deg)' : 'none',
+              }}
+            />
+          </button>
+        </nav>
+      </div>
 
       {/* Mobile dropdown menu */}
       <div
@@ -533,34 +956,35 @@ function Nav({ scrollY }: { scrollY: number }) {
           display: menuOpen ? 'flex' : 'none',
           flexDirection: 'column',
           position: 'fixed',
-          top: 64,
-          left: 0,
-          right: 0,
+          top: 78,
+          left: 20,
+          right: 20,
           zIndex: 49,
-          background: 'rgba(250, 250, 246, 0.98)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid #E4E0D8',
-          padding: '12px 24px 24px',
+          background: 'rgba(255,255,255,0.98)',
+          backdropFilter: 'blur(14px)',
+          border: '1px solid #EAEAE6',
+          borderRadius: 20,
+          padding: '10px 20px 20px',
           gap: 4,
-          boxShadow: '0 12px 24px rgba(0,0,0,0.06)',
+          boxShadow: '0 20px 40px rgba(30,30,28,0.1)',
         }}
       >
         {navItems.map((item) => (
           <a
-            key={item}
-            href={`#${item === 'Certs' ? 'certificates' : item.toLowerCase()}`}
+            key={item.key}
+            href={`#${item.key}`}
             onClick={() => setMenuOpen(false)}
             style={{
               fontFamily: 'var(--font-sans)',
               fontSize: '1rem',
               fontWeight: 500,
-              color: '#1C1C18',
+              color: '#1E1E1C',
               textDecoration: 'none',
               padding: '12px 4px',
-              borderBottom: '1px solid #EAE8E3',
+              borderBottom: '1px solid #EAEAE6',
             }}
           >
-            {item}
+            {item.label}
           </a>
         ))}
         <a
@@ -571,7 +995,7 @@ function Nav({ scrollY }: { scrollY: number }) {
             fontSize: '0.95rem',
             fontWeight: 600,
             color: '#FFFFFF',
-            background: '#6B9B78',
+            background: '#7FB08F',
             borderRadius: 100,
             padding: '12px 20px',
             textAlign: 'center',
@@ -586,132 +1010,10 @@ function Nav({ scrollY }: { scrollY: number }) {
   )
 }
 
-// ─── Certificate Card ────────────────────────────────────────────────────────
-interface CertCardProps {
-  title: string
-  issuer: string
-  date: string
-  url: string
-  accent: string
-}
-
-function CertCard({ title, issuer, date, url, accent }: CertCardProps) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        textDecoration: 'none',
-        background: '#FFFFFF',
-        border: `1px solid ${hovered ? accent : '#E4E0D8'}`,
-        borderRadius: 16,
-        overflow: 'hidden',
-        transition: 'border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease',
-        boxShadow: hovered
-          ? `0 16px 40px rgba(0,0,0,0.08), 0 0 0 1px ${accent}`
-          : '0 2px 10px rgba(0,0,0,0.04)',
-        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Accent strip + icon */}
-      <div
-        style={{
-          height: 72,
-          background: `linear-gradient(135deg, ${accent}66 0%, ${accent}22 100%)`,
-          display: 'flex',
-          alignItems: 'center',
-          paddingLeft: 20,
-          gap: 12,
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Subtle dot grid */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: `radial-gradient(circle, ${accent}55 1px, transparent 1px)`,
-            backgroundSize: '16px 16px',
-          }}
-        />
-        {/* Certificate badge icon */}
-        <div
-          style={{
-            position: 'relative',
-            zIndex: 1,
-            width: 40,
-            height: 40,
-            borderRadius: 10,
-            background: '#FFFFFF',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-            flexShrink: 0,
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B9B78" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="8" r="6"/>
-            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
-          </svg>
-        </div>
-        {/* Link arrow */}
-        <div style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9B9890" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 17 17 7M7 7h10v10"/>
-          </svg>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div style={{ padding: '18px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <p
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '1rem',
-            color: '#1C1C18',
-            lineHeight: 1.3,
-            marginBottom: 4,
-          }}
-        >
-          {title}
-        </p>
-        <p
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.85rem',
-            color: '#6B6860',
-            fontWeight: 400,
-          }}
-        >
-          {issuer}
-        </p>
-        <div style={{ marginTop: 'auto', paddingTop: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: accent, flexShrink: 0 }} />
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.75rem',
-              color: '#9B9890',
-              letterSpacing: '0.04em',
-            }}
-          >
-            {date}
-          </span>
-        </div>
-      </div>
-    </a>
-  )
-}
-
-// ─── Contact Form ─────────────────────────────────────────────────────────────
+// ─── ContactForm ──────────────────────────────────────────────────────────────
+// Logic byte-for-byte identical to the original — state, Web3Forms submission,
+// honeypot, and validation are untouched. Only the surrounding styling and the
+// focus-ring accent (alternating green / violet) changed.
 function ContactForm() {
   const [submitted, setSubmitted] = useState(false)
   const [isSending, setIsSending] = useState(false)
@@ -720,21 +1022,28 @@ function ContactForm() {
     width: '100%',
     fontFamily: 'var(--font-sans)',
     fontSize: '0.9rem',
-    color: '#1C1C18',
+    color: '#1E1E1C',
     background: '#FFFFFF',
-    border: '1px solid #E4E0D8',
+    border: '1px solid #EAEAE6',
     borderRadius: 12,
     padding: '14px 18px',
     outline: 'none',
     transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
   }
 
+  const focusColors: Record<string, { border: string; ring: string }> = {
+    name: { border: '#7FB08F', ring: 'rgba(127, 176, 143, 0.14)' },
+    email: { border: '#B39DDB', ring: 'rgba(179, 157, 219, 0.14)' },
+    message: { border: '#7FB08F', ring: 'rgba(127, 176, 143, 0.14)' },
+  }
+
   const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    e.target.style.borderColor = '#6B9B78'
-    e.target.style.boxShadow = '0 0 0 3px rgba(107, 155, 120, 0.12)'
+    const c = focusColors[e.target.name] ?? focusColors.name
+    e.target.style.borderColor = c.border
+    e.target.style.boxShadow = `0 0 0 3px ${c.ring}`
   }
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    e.target.style.borderColor = '#E4E0D8'
+    e.target.style.borderColor = '#EAEAE6'
     e.target.style.boxShadow = 'none'
   }
 
@@ -773,9 +1082,9 @@ function ContactForm() {
         style={{
           textAlign: 'center',
           padding: '60px 40px',
-          background: '#F2EFE8',
+          background: '#F8FAF8',
           borderRadius: 20,
-          border: '1px solid #E4E0D8',
+          border: '1px solid #EAEAE6',
         }}
       >
         <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
@@ -783,13 +1092,13 @@ function ContactForm() {
           style={{
             fontFamily: 'var(--font-display)',
             fontSize: '1.5rem',
-            color: '#1C1C18',
+            color: '#1E1E1C',
             marginBottom: 10,
           }}
         >
           Message received.
         </h3>
-        <p style={{ fontFamily: 'var(--font-sans)', color: '#6B6860', fontSize: '0.9rem' }}>
+        <p style={{ fontFamily: 'var(--font-sans)', color: '#5B5B57', fontSize: '0.9rem' }}>
           I'll be in touch within 24 hours.
         </p>
       </div>
@@ -899,7 +1208,7 @@ function ContactForm() {
           fontSize: '0.9rem',
           fontWeight: 600,
           color: '#FFFFFF',
-          background: '#1C1C18',
+          background: '#1E1E1C',
           border: 'none',
           borderRadius: 100,
           padding: '14px 32px',
@@ -909,12 +1218,12 @@ function ContactForm() {
         }}
         onMouseEnter={(e) => {
           if (!isSending) {
-            ;(e.target as HTMLElement).style.background = '#6B9B78'
+            ;(e.target as HTMLElement).style.background = '#7FB08F'
             ;(e.target as HTMLElement).style.transform = 'scale(1.03)'
           }
         }}
         onMouseLeave={(e) => {
-          ;(e.target as HTMLElement).style.background = '#1C1C18'
+          ;(e.target as HTMLElement).style.background = '#1E1E1C'
           ;(e.target as HTMLElement).style.transform = 'scale(1)'
         }}
       >
@@ -924,12 +1233,11 @@ function ContactForm() {
   )
 }
 
-
-
-// ─── App ──────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// APP
+// ═══════════════════════════════════════════════════════════════════════════
 export default function App() {
   const [scrollY, setScrollY] = useState(0)
-  const heroRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -937,33 +1245,42 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const concepts = [
+  const projects: Omit<ProjectCardProps, 'index'>[] = [
     {
       title: 'The Automated Lead Capture Engine',
       objective:
         'Designed for local service businesses to capture web traffic and instantly trigger automated email replies within 2 minutes of a form submission.',
       architecture: 'Custom Landing Page · Email Reply Automation · Calendar Integration',
-      accent: '#6B9B78',
-      icon: '⚡',
-      delay: 'delay-100',
+      accent: '#7FB08F',
+      steps: [
+        { icon: '⚡', label: 'Lead Captured' },
+        { icon: '✉️', label: 'Email Triggered' },
+        { icon: '📅', label: 'Calendar Booked' },
+      ],
     },
     {
       title: 'The SMS Nurture Sequence Blueprint',
       objective:
         'A multi-touch SMS and email drip sequence that keeps cold leads warm over 21 days, engineered to re-engage prospects who ghosted after the first touchpoint.',
       architecture: 'SMS Workflow · Email Sequences · Lead Scoring Tags · Pipeline Automation',
-      accent: '#9B85C4',
-      icon: '💬',
-      delay: 'delay-200',
+      accent: '#B39DDB',
+      steps: [
+        { icon: '💬', label: 'SMS Sent' },
+        { icon: '🏷️', label: 'Lead Scored' },
+        { icon: '🔁', label: 'Re-engaged' },
+      ],
     },
     {
       title: 'The Smart Booking Calendar System',
       objective:
         'A fully automated appointment funnel that qualifies, books, and confirms clients without any manual input — freeing the business owner from inbox management entirely.',
       architecture: 'Booking Funnel · Confirmation Workflows · No-Show Re-Engagement · CRM Sync',
-      accent: '#C4935A',
-      icon: '📅',
-      delay: 'delay-300',
+      accent: '#5C9370',
+      steps: [
+        { icon: '📅', label: 'Slot Booked' },
+        { icon: '✅', label: 'Confirmed' },
+        { icon: '🔄', label: 'CRM Synced' },
+      ],
     },
   ]
 
@@ -982,47 +1299,87 @@ export default function App() {
   ]
 
   return (
-    <div style={{ background: '#FAFAF6', minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
-      <ParallaxShapes scrollY={scrollY} />
-      <Nav scrollY={scrollY} />
+    <div style={{ background: '#FFFFFF', minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
+      <ReactiveBackground scrollY={scrollY} />
+      <CustomCursor />
+      <Nav />
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section
-        ref={heroRef}
         className="hero-section"
         style={{
           position: 'relative',
           zIndex: 1,
-          padding: '150px 40px 90px',
+          padding: '160px 40px 90px',
+          minHeight: '92vh',
+          display: 'flex',
+          alignItems: 'center',
         }}
       >
         <div
           className="hero-grid"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: 56,
+            gridTemplateColumns: 'minmax(220px, 340px) 1fr',
+            gap: 64,
             alignItems: 'center',
             width: '100%',
-            maxWidth: 1160,
+            maxWidth: 1080,
             margin: '0 auto',
           }}
         >
-          {/* Left Column: Copy & Actions */}
+          {/* Left: photo */}
+          <div className="animate-fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <HeroPhoto />
+          </div>
+
+          {/* Right: copy */}
           <div style={{ textAlign: 'left' }}>
+            <h1
+              className="animate-fade-up delay-100"
+              style={{
+                lineHeight: 1.1,
+                marginBottom: 16,
+              }}
+            >
+              <span
+                style={{
+                  display: 'block',
+                  fontFamily: 'var(--font-sans)',
+                  fontWeight: 300,
+                  fontSize: '1.3rem',
+                  color: '#5B5B57',
+                  marginBottom: 4,
+                }}
+              >
+                Hey there, I'm
+              </span>
+              <span
+                style={{
+                  display: 'block',
+                  fontFamily: "'Trispace', monospace",
+                  fontWeight: 500,
+                  fontSize: 'clamp(2.4rem, 4.4vw, 3.6rem)',
+                  letterSpacing: '0.005em',
+                  color: '#1E1E1C',
+                }}
+              >
+                <InteractiveName text="Jellie Joyce" />
+              </span>
+            </h1>
+
             {/* Role pill */}
             <div
-              className="animate-fade-in"
+              className="animate-fade-in delay-150"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 8,
-                background: '#FFFFFF',
-                border: '1px solid #E4E0D8',
+                background: '#F8FAF8',
+                border: '1px solid #EAEAE6',
                 borderRadius: 100,
-                padding: '6px 18px',
-                marginBottom: 22,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                padding: '6px 16px',
+                marginBottom: 20,
               }}
             >
               <span
@@ -1030,9 +1387,9 @@ export default function App() {
                   width: 7,
                   height: 7,
                   borderRadius: '50%',
-                  background: '#6B9B78',
+                  background: '#7FB08F',
                   display: 'inline-block',
-                  boxShadow: '0 0 0 3px rgba(107,155,120,0.25)',
+                  boxShadow: '0 0 0 3px rgba(127,176,143,0.22)',
                 }}
               />
               <span
@@ -1040,192 +1397,195 @@ export default function App() {
                   fontFamily: 'var(--font-sans)',
                   fontSize: '0.8rem',
                   fontWeight: 500,
-                  color: '#6B6860',
-                  letterSpacing: '0.04em',
+                  color: '#5B5B57',
+                  letterSpacing: '0.02em',
                 }}
               >
-                GoHighLevel Specialist | CRM & Marketing Automation
+                GoHighLevel Specialist · CRM &amp; Automation
               </span>
             </div>
 
-            {/* Hero headline */}
-            <h1
-              className="animate-fade-up delay-100"
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(2.1rem, 3.6vw, 3.2rem)',
-                color: '#1C1C18',
-                lineHeight: 1.12,
-                letterSpacing: '-0.02em',
-                marginBottom: 18,
-              }}
-            >
-              Systems that work <br />
-              <span style={{ color: '#6B9B78' }}>while you sleep.</span>
-            </h1>
-
-            {/* Sub-text */}
+            {/* Bio */}
             <p
               className="animate-fade-up delay-200"
               style={{
                 fontFamily: 'var(--font-sans)',
-                fontSize: '0.95rem',
-                color: '#6B6860',
-                maxWidth: 440,
+                fontSize: '1rem',
+                color: '#5B5B57',
+                maxWidth: 460,
                 lineHeight: 1.7,
-                marginBottom: 32,
+                marginBottom: 18,
                 fontWeight: 300,
               }}
             >
-              Automating the repetitive so your business captures, nurtures, and closes leads —
-              without you lifting a finger.
+              I turn messy business ops into streamlined, revenue-generating machines — so you get
+              to focus on your clients, not your CRM.
             </p>
 
-            {/* CTA buttons */}
+            {/* Tagline accent */}
+            <p
+              className="animate-fade-up delay-250"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontStyle: 'italic',
+                fontSize: '1rem',
+                color: '#9678C9',
+                marginBottom: 22,
+              }}
+            >
+              ✦ "Systems that work while you sleep."
+            </p>
+
+            {/* CTAs */}
             <div
               className="hero-ctas animate-fade-up delay-300"
-              style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'flex-start' }}
+              style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 26 }}
             >
-              <a
-                href="#work"
-                style={{
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                  color: '#FFFFFF',
-                  background: '#1C1C18',
-                  borderRadius: 100,
-                  padding: '14px 28px',
-                  textDecoration: 'none',
-                  transition: 'background 0.2s ease, transform 0.2s ease',
-                  display: 'inline-block',
-                }}
-                onMouseEnter={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.background = '#6B9B78'
-                  ;(e.currentTarget as HTMLElement).style.transform = 'scale(1.03)'
-                }}
-                onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.background = '#1C1C18'
-                  ;(e.currentTarget as HTMLElement).style.transform = 'scale(1)'
-                }}
-              >
-                View My Work
-              </a>
-              <a
-                href="#contact"
-                style={{
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: '0.9rem',
-                  fontWeight: 500,
-                  color: '#1C1C18',
-                  background: 'transparent',
-                  border: '1.5px solid #D4CFC8',
-                  borderRadius: 100,
-                  padding: '14px 28px',
-                  textDecoration: 'none',
-                  transition: 'border-color 0.2s ease, transform 0.2s ease',
-                  display: 'inline-block',
-                }}
-                onMouseEnter={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.borderColor = '#6B9B78'
-                  ;(e.currentTarget as HTMLElement).style.transform = 'scale(1.03)'
-                }}
-                onMouseLeave={(e) => {
-                  ;(e.currentTarget as HTMLElement).style.borderColor = '#D4CFC8'
-                  ;(e.currentTarget as HTMLElement).style.transform = 'scale(1)'
-                }}
-              >
-                Get in Touch
-              </a>
+              <Magnetic strength={0.2} max={5}>
+                <a
+                  href="/resume.pdf"
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    color: '#FFFFFF',
+                    background: '#9678C9',
+                    borderRadius: 100,
+                    padding: '14px 28px',
+                    textDecoration: 'none',
+                    transition: 'background 0.2s ease',
+                    display: 'inline-block',
+                  }}
+                  onMouseEnter={(e) => {
+                    ;(e.currentTarget as HTMLElement).style.background = '#8563B8'
+                  }}
+                  onMouseLeave={(e) => {
+                    ;(e.currentTarget as HTMLElement).style.background = '#9678C9'
+                  }}
+                >
+                  Download Resume ↓
+                </a>
+              </Magnetic>
+              <Magnetic strength={0.2} max={5}>
+                <a
+                  href="#work"
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    color: '#FFFFFF',
+                    background: '#1E1E1C',
+                    borderRadius: 100,
+                    padding: '14px 28px',
+                    textDecoration: 'none',
+                    transition: 'background 0.2s ease',
+                    display: 'inline-block',
+                  }}
+                  onMouseEnter={(e) => {
+                    ;(e.currentTarget as HTMLElement).style.background = '#7FB08F'
+                  }}
+                  onMouseLeave={(e) => {
+                    ;(e.currentTarget as HTMLElement).style.background = '#1E1E1C'
+                  }}
+                >
+                  View My Work →
+                </a>
+              </Magnetic>
             </div>
-          </div>
 
-          {/* Right Column: Workflow Mockup */}
-          <div
-            className="animate-fade-up delay-200"
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <WorkflowMockup />
+            {/* Identity line + availability */}
+            <div
+              className="animate-fade-up delay-350"
+              style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 14 }}
+            >
+              <span
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.8rem',
+                  color: '#5B5B57',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                📍 Tokyo, Japan · GMT+9
+              </span>
+              <span
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.8rem',
+                  color: '#5B5B57',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                🤿 Advanced Freediver
+              </span>
+            </div>
           </div>
         </div>
       </section>
-      
 
-      {/* ── CONCEPT SNAPSHOTS ─────────────────────────────────────────────── */}
+      {/* ── PROJECTS (horizontal track) ─────────────────────────────────── */}
       <section
         id="work"
         className="concepts-section"
         style={{
           position: 'relative',
           zIndex: 1,
-          padding: '100px 40px',
+          padding: '100px 0 100px 40px',
         }}
       >
-        <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-        {/* Section label */}
-        <div style={{ marginBottom: 56, maxWidth: 640 }}>
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              color: '#6B9B78',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              display: 'block',
-              marginBottom: 14,
-            }}
-          >
-            Platform Blueprints
-          </span>
-          <h2
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(2rem, 4vw, 3rem)',
-              color: '#1C1C18',
-              lineHeight: 1.15,
-              marginBottom: 16,
-              letterSpacing: '-0.015em',
-            }}
-          >
-            Concept Snapshots &amp;{' '}
-            <span style={{ fontStyle: 'italic', color: '#6B9B78' }}>Interactive Builds</span>
-          </h2>
-          <p
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '1rem',
-              color: '#6B6860',
-              lineHeight: 1.7,
-              fontWeight: 300,
-            }}
-          >
-           Pre-configured GoHighLevel frameworks engineered to solve common business
-            bottlenecks. Built completely from scratch in my development sandbox.
-          </p>
+        <div style={{ maxWidth: 1160, margin: '0 auto 0 auto', paddingRight: 40 }}>
+          <div style={{ marginBottom: 56, maxWidth: 640 }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: '#5C9370',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                display: 'block',
+                marginBottom: 14,
+              }}
+            >
+              Platform Blueprints
+            </span>
+            <h2
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(2rem, 4vw, 3rem)',
+                color: '#1E1E1C',
+                lineHeight: 1.15,
+                marginBottom: 16,
+                letterSpacing: '-0.015em',
+              }}
+            >
+              Concept snapshots &amp; interactive builds
+            </h2>
+            <p
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '1rem',
+                color: '#5B5B57',
+                lineHeight: 1.7,
+                fontWeight: 300,
+              }}
+            >
+              Pre-configured GoHighLevel frameworks engineered to solve common business
+              bottlenecks. Built completely from scratch in my development sandbox.
+            </p>
+          </div>
         </div>
 
-        {/* Cards grid */}
-        <div
-          className="concepts-grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 24,
-          }}
-        >
-          {concepts.map((c) => (
-            <ConceptCard key={c.title} {...c} />
-          ))}
-        </div>
+        <div style={{ maxWidth: 1160, margin: '0 auto', paddingRight: 40 }}>
+          <ProjectsTrack projects={projects as ProjectCardProps[]} />
         </div>
       </section>
 
-      {/* ── BACKGROUND & SKILLS ───────────────────────────────────────────── */}
+      {/* ── ABOUT / SKILLS ───────────────────────────────────────────────── */}
       <section
         id="about"
         className="about-section"
@@ -1233,19 +1593,18 @@ export default function App() {
           position: 'relative',
           zIndex: 1,
           padding: '100px 40px',
-          background: 'transparent',
         }}
       >
         <div
+          className="about-grid"
           style={{
             maxWidth: 1160,
             margin: '0 auto',
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: 80,
-            alignItems: 'end',
+            alignItems: 'start',
           }}
-          className="about-grid"
         >
           {/* Left: narrative */}
           <div>
@@ -1254,8 +1613,8 @@ export default function App() {
                 fontFamily: 'var(--font-sans)',
                 fontSize: '0.75rem',
                 fontWeight: 600,
-                color: '#6B9B78',
-                letterSpacing: '0.12em',
+                color: '#5C9370',
+                letterSpacing: '0.1em',
                 textTransform: 'uppercase',
                 display: 'block',
                 marginBottom: 14,
@@ -1267,88 +1626,14 @@ export default function App() {
               style={{
                 fontFamily: 'var(--font-display)',
                 fontSize: 'clamp(1.8rem, 3vw, 2.5rem)',
-                color: '#1C1C18',
+                color: '#1E1E1C',
                 lineHeight: 1.2,
-                marginBottom: 28,
+                marginBottom: 24,
                 letterSpacing: '-0.015em',
               }}
             >
-              Hey there! Meet your{' '}
-              <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Operational Co-Pilot</span>
+              Meet your <span style={{ fontStyle: 'italic', color: '#9678C9' }}>operational co-pilot</span>
             </h2>
-
-            {/* Profile mini-card */}
-            <div
-              className="profile-card"
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 18,
-                marginBottom: 28,
-                background: '#FFFFFF',
-                borderRadius: 16,
-                border: '1px solid #E4E0D8',
-                padding: '18px',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
-              }}
-            >
-              {/* Photo placeholder */}
-              <div
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: 14,
-                  background: 'linear-gradient(135deg, #B8D4BF 0%, #D5CAEB 100%)',
-                  flexShrink: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 28,
-                  border: '2px dashed #C8DCC0',
-                  overflow: 'hidden',
-                }}
-                title="Replace with your photo"
-              >
-                🪴
-              </div>
-              {/* Info */}
-              <div style={{ flex: 1 }}>
-                <p
-                  style={{
-                    fontFamily: "'Trispace', monospace",
-                    fontSize: '1rem',
-                    fontWeight: 400,
-                    color: '#1C1C18',
-                    letterSpacing: '0.04em',
-                    marginBottom: 4,
-                  }}
-                >
-                  Jellie Joyce Andaya
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  {[
-                    { icon: '📍', text: '  Tokyo, Japan' },
-                    { icon: '💼', text: 'GoHighLevel / Automation Specialist' },
-                    { icon: '🕐', text: 'Available · GMT+9' },
-                  ].map((item) => (
-                    <span
-                      key={item.text}
-                      style={{
-                        fontFamily: 'var(--font-sans)',
-                        fontSize: '0.8rem',
-                        color: '#6B6860',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                      }}
-                    >
-                      <span style={{ fontSize: '0.75rem' }}>{item.icon}</span>
-                      {item.text}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
 
             <p
               style={{
@@ -1359,21 +1644,20 @@ export default function App() {
                 fontWeight: 300,
               }}
             >
-I am a GoHighLevel / Automation Specialist focused on transforming messy business operations into streamlined, revenue-generating machines.
-By centralizing your marketing, sales pipelines, and customer communication into one cohesive platform, I eliminate technical headaches and cut software overhead costs.
-When you partner with me, you get an agile, platform-focused expert who delivers turnkey automation, handling all the heavy lifting so you can focus entirely on serving your clients.
-           <br />
-           <br />
-Outside of work, I swap digital architecture for the beauty of the open ocean.
-I am a Molchanovs Certified Advanced Freediver and a PADI Certified Open Water Diver, and nothing compares to the absolute clarity and peace of being under the sea.
-Navigating complex business workflows actually requires a lot of the same calm, discipline, and adaptability as diving into the deep blue—and I bring that exact focus 
+              I am a GoHighLevel / Automation Specialist focused on transforming messy business operations into streamlined, revenue-generating machines.
+              By centralizing your marketing, sales pipelines, and customer communication into one cohesive platform, I eliminate technical headaches and cut software overhead costs.
+              When you partner with me, you get an agile, platform-focused expert who delivers turnkey automation, handling all the heavy lifting so you can focus entirely on serving your clients.
+              <br />
+              <br />
+              Outside of work, I swap digital architecture for the beauty of the open ocean.
+              I am a Molchanovs Certified Advanced Freediver and a PADI Certified Open Water Diver, and nothing compares to the absolute clarity and peace of being under the sea.
+              Navigating complex business workflows actually requires a lot of the same calm, discipline, and adaptability as diving into the deep blue — and I bring that exact focus
               to every automation ecosystem I build.
             </p>
           </div>
 
           {/* Right: stats + skills */}
           <div>
-            {/* Stats grid */}
             <div
               className="stats-grid"
               style={{
@@ -1381,36 +1665,30 @@ Navigating complex business workflows actually requires a lot of the same calm, 
                 gridTemplateColumns: 'repeat(3, 1fr)',
                 background: '#FFFFFF',
                 borderRadius: 16,
-                border: '1px solid #E4E0D8',
+                border: '1px solid #EAEAE6',
                 overflow: 'hidden',
                 marginBottom: 20,
-                boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
+                boxShadow: '0 2px 16px rgba(30,30,28,0.04)',
               }}
             >
               {[
-                { number: '0', label: 'Missed Leads' },
-                { number: '10+', label: 'Custom Funnels Built' },
-                { number: '24/7', label: 'Automated Systems' },
+                { number: '<2min', label: 'Average Response Time' },
+                { number: '21-Day', label: 'Nurture Sequences' },
+                { number: '24/7', label: 'Systems Live' },
               ].map((stat, i) => (
-                <div
-                  key={stat.label}
-                  style={{
-                    borderRight: i < 2 ? '1px solid #E4E0D8' : 'none',
-                  }}
-                >
+                <div key={stat.label} style={{ borderRight: i < 2 ? '1px solid #EAEAE6' : 'none' }}>
                   <StatBlock {...stat} />
                 </div>
               ))}
             </div>
 
-            {/* Skills & Tools */}
             <div
               style={{
                 background: '#FFFFFF',
                 borderRadius: 16,
-                border: '1px solid #E4E0D8',
+                border: '1px solid #EAEAE6',
                 padding: '18px',
-                boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
+                boxShadow: '0 2px 16px rgba(30,30,28,0.04)',
               }}
             >
               <p
@@ -1436,142 +1714,154 @@ Navigating complex business workflows actually requires a lot of the same calm, 
         </div>
       </section>
 
-
-{/* ── CERTIFICATES / CREDENTIALS ──────────────────────────────────── */}
-<section
-  id="certificates"
-  style={{
-    position: 'relative',
-    zIndex: 1,
-    padding: '100px 40px',
-  }}
->
-  <div style={{ maxWidth: 1160, margin: '0 auto' }}>
-  <div style={{ maxWidth: '720px', margin: '0' }}>
-    <h2
-      style={{
-        fontFamily: 'var(--font-display)',
-        fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)',
-        color: '#1C1C18',
-        lineHeight: 1.15,
-        letterSpacing: '-0.015em',
-        marginBottom: 8,
-      }}
-    >
-      <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Credentials</span>
-    </h2>
-
-    <p
-      style={{
-        fontFamily: 'var(--font-sans)',
-        fontSize: '0.9rem',
-        color: '#6B6860',
-        lineHeight: 1.6,
-        fontWeight: 300,
-        marginBottom: 32,
-      }}
-    >
-      Verified certifications & professional training
-    </p>
-
-    {/* Minimalist List */}
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {[
-        {
-          title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
-          issuer: 'Google',
-          date: '2026',
-          url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414443?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
-        },
-        {
-          title: 'AI Fluency Framework & Foundations',
-          issuer: 'Anthropic',
-          date: '2026',
-          url: 'https://verify.skilljar.com/c/2drrus4jxbrv',
-        },
-        {
-          title: 'AI Capabilities and Limitations',
-          issuer: 'Anthropic',
-          date: '2026',
-          url: 'https://verify.skilljar.com/c/uhroqca7r38j',
-        },
-        {
-          title: 'Introduction to Responsible AI',
-          issuer: 'Google',
-          date: '2026',
-          url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414962?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
-        },
-        {
-          title: 'Claude 101',
-          issuer: 'Anthropic',
-          date: '2026',
-          url: 'https://verify.skilljar.com/c/6nkq7vzv5y7g',
-        },
-        {
-          title: 'Introduction to Claude Cowork',
-          issuer: 'Anthropic',
-          date: '2026',
-          url: 'https://verify.skilljar.com/c/uav39s8hemj8',
-        },
-      ].map((cert, index) => (
-        <a
-          key={index}
-          href={cert.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="cert-row"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '16px 0',
-            borderBottom: '1px solid #EAE8E3',
-            textDecoration: 'none',
-            gap: '16px',
-          }}
-        >
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.95rem',
-              color: '#1C1C18',
-              fontWeight: 400,
-              flex: 1,
-              minWidth: 0,
-            }}
-          >
-            {cert.title}
-          </span>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-            <span
+      {/* ── CERTIFICATES ─────────────────────────────────────────────────── */}
+      <section
+        id="certificates"
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          padding: '100px 40px',
+        }}
+      >
+        <div style={{ maxWidth: 1160, margin: '0 auto' }}>
+          <div style={{ maxWidth: 720 }}>
+            <h2
               style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: '0.8rem',
-                color: '#8A8780',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)',
+                color: '#1E1E1C',
+                lineHeight: 1.15,
+                letterSpacing: '-0.015em',
+                marginBottom: 8,
               }}
             >
-              {cert.issuer}
-            </span>
-            <span
+              <span style={{ fontStyle: 'italic', color: '#9678C9' }}>Credentials</span>
+            </h2>
+
+            <p
               style={{
                 fontFamily: 'var(--font-sans)',
-                fontSize: '0.8rem',
-                color: '#B5B2AA',
+                fontSize: '0.9rem',
+                color: '#5B5B57',
+                lineHeight: 1.6,
+                fontWeight: 300,
+                marginBottom: 32,
               }}
             >
-              ↗
-            </span>
+              Verified certifications &amp; professional training
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {[
+                {
+                  title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
+                  issuer: 'Google',
+                  date: '2026',
+                  url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414443?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
+                },
+                {
+                  title: 'AI Fluency Framework & Foundations',
+                  issuer: 'Anthropic',
+                  date: '2026',
+                  url: 'https://verify.skilljar.com/c/2drrus4jxbrv',
+                },
+                {
+                  title: 'AI Capabilities and Limitations',
+                  issuer: 'Anthropic',
+                  date: '2026',
+                  url: 'https://verify.skilljar.com/c/uhroqca7r38j',
+                },
+                {
+                  title: 'Introduction to Responsible AI',
+                  issuer: 'Google',
+                  date: '2026',
+                  url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414962?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
+                },
+                {
+                  title: 'Claude 101',
+                  issuer: 'Anthropic',
+                  date: '2026',
+                  url: 'https://verify.skilljar.com/c/6nkq7vzv5y7g',
+                },
+                {
+                  title: 'Introduction to Claude Cowork',
+                  issuer: 'Anthropic',
+                  date: '2026',
+                  url: 'https://verify.skilljar.com/c/uav39s8hemj8',
+                },
+              ].map((cert, index) => {
+                const accent = index % 2 === 0 ? '#7FB08F' : '#B39DDB'
+                return (
+                  <a
+                    key={index}
+                    href={cert.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cert-row"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '16px 14px',
+                      margin: '0 -14px',
+                      borderRadius: 12,
+                      borderBottom: '1px solid #EAEAE6',
+                      textDecoration: 'none',
+                      gap: 16,
+                      transition: 'background 0.2s ease, box-shadow 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.background = '#F8FAF8'
+                      ;(e.currentTarget as HTMLElement).style.boxShadow = `0 8px 24px ${accent}22`
+                    }}
+                    onMouseLeave={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+                      ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: 6,
+                        height: 6,
+                        borderRadius: '50%',
+                        background: accent,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-sans)',
+                        fontSize: '0.95rem',
+                        color: '#1E1E1C',
+                        fontWeight: 400,
+                        flex: 1,
+                        minWidth: 0,
+                      }}
+                    >
+                      {cert.title}
+                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-sans)',
+                          fontSize: '0.8rem',
+                          color: '#8A8780',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                        }}
+                      >
+                        {cert.issuer}
+                      </span>
+                      <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.8rem', color: '#B5B2AA' }}>↗</span>
+                    </div>
+                  </a>
+                )
+              })}
+            </div>
           </div>
-        </a>
-      ))}
-    </div>
-  </div>
-  </div>
-</section>
-
+        </div>
+      </section>
 
       {/* ── CONTACT ───────────────────────────────────────────────────────── */}
       <section
@@ -1583,7 +1873,17 @@ Navigating complex business workflows actually requires a lot of the same calm, 
           padding: '100px 40px',
         }}
       >
-        <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 80, alignItems: 'end', maxWidth: 1160, margin: '0 auto' }}>
+        <div
+          className="contact-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1.2fr',
+            gap: 80,
+            alignItems: 'end',
+            maxWidth: 1160,
+            margin: '0 auto',
+          }}
+        >
           {/* Left: copy */}
           <div>
             <span
@@ -1591,8 +1891,8 @@ Navigating complex business workflows actually requires a lot of the same calm, 
                 fontFamily: 'var(--font-sans)',
                 fontSize: '0.75rem',
                 fontWeight: 600,
-                color: '#6B9B78',
-                letterSpacing: '0.12em',
+                color: '#5C9370',
+                letterSpacing: '0.1em',
                 textTransform: 'uppercase',
                 display: 'block',
                 marginBottom: 14,
@@ -1604,20 +1904,19 @@ Navigating complex business workflows actually requires a lot of the same calm, 
               style={{
                 fontFamily: 'var(--font-display)',
                 fontSize: 'clamp(2rem, 4vw, 3rem)',
-                color: '#1C1C18',
+                color: '#1E1E1C',
                 lineHeight: 1.15,
                 marginBottom: 20,
                 letterSpacing: '-0.015em',
               }}
             >
-              Let's build something{' '}
-              <span style={{ fontStyle: 'italic', color: '#6B9B78' }}>together.</span>
+              Let's build something <span style={{ fontStyle: 'italic', color: '#7FB08F' }}>together.</span>
             </h2>
             <p
               style={{
                 fontFamily: 'var(--font-sans)',
                 fontSize: '0.95rem',
-                color: '#6B6860',
+                color: '#5B5B57',
                 lineHeight: 1.75,
                 fontWeight: 300,
                 marginBottom: 40,
@@ -1627,14 +1926,13 @@ Navigating complex business workflows actually requires a lot of the same calm, 
               Reach out and let's figure out what you need.
             </p>
 
-            {/* Availability badge */}
             <div
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 10,
-                background: '#F0F7F2',
-                border: '1px solid #C8DCC0',
+                background: '#EAF6EE',
+                border: '1px solid #C9E4D0',
                 borderRadius: 100,
                 padding: '10px 20px',
                 marginBottom: 32,
@@ -1645,9 +1943,9 @@ Navigating complex business workflows actually requires a lot of the same calm, 
                   width: 8,
                   height: 8,
                   borderRadius: '50%',
-                  background: '#6B9B78',
+                  background: '#7FB08F',
                   display: 'inline-block',
-                  boxShadow: '0 0 0 3px rgba(107,155,120,0.3)',
+                  boxShadow: '0 0 0 3px rgba(127,176,143,0.3)',
                 }}
               />
               <span
@@ -1662,14 +1960,13 @@ Navigating complex business workflows actually requires a lot of the same calm, 
               </span>
             </div>
 
-            {/* Direct contact links */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
                 {
                   icon: (
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="4" width="20" height="16" rx="2"/>
-                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                      <rect x="2" y="4" width="20" height="16" rx="2" />
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                     </svg>
                   ),
                   label: 'Email',
@@ -1679,9 +1976,9 @@ Navigating complex business workflows actually requires a lot of the same calm, 
                 {
                   icon: (
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="2" width="20" height="20" rx="5"/>
-                      <circle cx="12" cy="12" r="4"/>
-                      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+                      <rect x="2" y="2" width="20" height="20" rx="5" />
+                      <circle cx="12" cy="12" r="4" />
+                      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" />
                     </svg>
                   ),
                   label: 'Instagram',
@@ -1689,38 +1986,52 @@ Navigating complex business workflows actually requires a lot of the same calm, 
                   href: 'https://instagram.com/jelejoys',
                 },
               ].map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target={link.href.startsWith('mailto') ? undefined : '_blank'}
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    padding: '12px 16px',
-                    background: '#FAFAF6',
-                    border: '1px solid #E4E0D8',
-                    borderRadius: 12,
-                    textDecoration: 'none',
-                    color: '#4A4A46',
-                    transition: 'border-color 0.2s ease, background 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    ;(e.currentTarget as HTMLElement).style.borderColor = '#6B9B78'
-                    ;(e.currentTarget as HTMLElement).style.background = '#F0F7F2'
-                  }}
-                  onMouseLeave={(e) => {
-                    ;(e.currentTarget as HTMLElement).style.borderColor = '#E4E0D8'
-                    ;(e.currentTarget as HTMLElement).style.background = '#FAFAF6'
-                  }}
-                >
-                  <span style={{ color: '#6B9B78', display: 'flex', flexShrink: 0 }}>{link.icon}</span>
-                  <div>
-                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.72rem', fontWeight: 600, color: '#9B9890', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 1 }}>{link.label}</p>
-                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.87rem', color: '#4A4A46' }}>{link.value}</p>
-                  </div>
-                </a>
+                <Magnetic key={link.label} strength={0.15} max={4}>
+                  <a
+                    href={link.href}
+                    target={link.href.startsWith('mailto') ? undefined : '_blank'}
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: '12px 16px',
+                      background: '#FAFAF6',
+                      border: '1px solid #EAEAE6',
+                      borderRadius: 12,
+                      textDecoration: 'none',
+                      color: '#4A4A46',
+                      transition: 'border-color 0.2s ease, background 0.2s ease',
+                      width: '100%',
+                    }}
+                    onMouseEnter={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.borderColor = '#7FB08F'
+                      ;(e.currentTarget as HTMLElement).style.background = '#F8FAF8'
+                    }}
+                    onMouseLeave={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.borderColor = '#EAEAE6'
+                      ;(e.currentTarget as HTMLElement).style.background = '#FAFAF6'
+                    }}
+                  >
+                    <span style={{ color: '#7FB08F', display: 'flex', flexShrink: 0 }}>{link.icon}</span>
+                    <div>
+                      <p
+                        style={{
+                          fontFamily: 'var(--font-sans)',
+                          fontSize: '0.72rem',
+                          fontWeight: 600,
+                          color: '#9B9890',
+                          letterSpacing: '0.07em',
+                          textTransform: 'uppercase',
+                          marginBottom: 1,
+                        }}
+                      >
+                        {link.label}
+                      </p>
+                      <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.87rem', color: '#4A4A46' }}>{link.value}</p>
+                    </div>
+                  </a>
+                </Magnetic>
               ))}
             </div>
           </div>
@@ -1738,7 +2049,7 @@ Navigating complex business workflows actually requires a lot of the same calm, 
         style={{
           position: 'relative',
           zIndex: 1,
-          borderTop: '1px solid #E4E0D8',
+          borderTop: '1px solid #EAEAE6',
           padding: '32px 40px',
           display: 'flex',
           alignItems: 'center',
@@ -1750,7 +2061,7 @@ Navigating complex business workflows actually requires a lot of the same calm, 
             fontFamily: "'Trispace', monospace",
             fontSize: '0.9rem',
             fontWeight: 400,
-            color: '#1C1C18',
+            color: '#1E1E1C',
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
           }}
@@ -1768,9 +2079,29 @@ Navigating complex business workflows actually requires a lot of the same calm, 
         </span>
       </footer>
 
-      {/* Responsive styles */}
+      {/* Global + responsive styles */}
       <style>{`
-        /* ── Tablet (≤1024px) ── */
+        .custom-cursor-active,
+        .custom-cursor-active a,
+        .custom-cursor-active button {
+          cursor: none !important;
+        }
+
+        .projects-track {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .projects-track::-webkit-scrollbar {
+          display: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .animate-fade-up, .animate-fade-in {
+            animation: none !important;
+          }
+        }
+
+        /* ── Tablet (\u22641024px) ── */
         @media (max-width: 1024px) {
           .about-grid {
             grid-template-columns: 1fr !important;
@@ -1780,23 +2111,29 @@ Navigating complex business workflows actually requires a lot of the same calm, 
             grid-template-columns: 1fr !important;
             gap: 48px !important;
           }
+          .hero-grid {
+            grid-template-columns: minmax(200px, 260px) 1fr !important;
+            gap: 40px !important;
+          }
         }
 
-        /* ── Mobile (≤768px) ── */
+        /* ── Mobile (\u2264768px) ── */
         @media (max-width: 768px) {
-          /* Nav */
           .nav-links { display: none !important; }
           .nav-toggle { display: flex !important; }
-          nav { padding: 0 20px !important; }
 
-          /* Hero */
           .hero-section {
-            padding: 100px 24px 60px !important;
+            padding: 110px 24px 60px !important;
             min-height: auto !important;
           }
           .hero-grid {
             grid-template-columns: 1fr !important;
-            gap: 40px !important;
+            gap: 32px !important;
+            justify-items: center;
+            text-align: center !important;
+          }
+          .hero-grid > div:last-child {
+            text-align: left !important;
           }
           .hero-ctas {
             flex-direction: column !important;
@@ -1807,15 +2144,10 @@ Navigating complex business workflows actually requires a lot of the same calm, 
             text-align: center !important;
           }
 
-          /* Concept cards */
           .concepts-section {
-            padding: 72px 24px !important;
-          }
-          .concepts-grid {
-            grid-template-columns: 1fr !important;
+            padding: 72px 0 72px 24px !important;
           }
 
-          /* About */
           .about-section {
             padding: 72px 24px !important;
           }
@@ -1827,7 +2159,6 @@ Navigating complex business workflows actually requires a lot of the same calm, 
             grid-template-columns: repeat(3, 1fr) !important;
           }
 
-          /* Contact */
           .contact-section {
             padding: 72px 24px !important;
           }
@@ -1835,7 +2166,6 @@ Navigating complex business workflows actually requires a lot of the same calm, 
             grid-template-columns: 1fr !important;
           }
 
-          /* Footer */
           .site-footer {
             padding: 24px 20px !important;
             flex-direction: column !important;
@@ -1844,21 +2174,17 @@ Navigating complex business workflows actually requires a lot of the same calm, 
           }
         }
 
-        /* ── Small phones (≤480px) ── */
+        /* ── Small phones (\u2264480px) ── */
         @media (max-width: 480px) {
           .stats-grid {
             grid-template-columns: 1fr !important;
           }
           .stats-grid > div {
             border-right: none !important;
-            border-bottom: 1px solid #E4E0D8 !important;
+            border-bottom: 1px solid #EAEAE6 !important;
           }
           .stats-grid > div:last-child {
             border-bottom: none !important;
-          }
-          .profile-card {
-            flex-direction: column !important;
-            align-items: flex-start !important;
           }
           .cert-row {
             flex-direction: column !important;
