@@ -116,6 +116,7 @@ function WorkflowMockup() {
     { icon: '📅', label: 'Calendar Booked', color: '#F5E2B8' },
     { icon: '✓', label: 'Deal Closed', color: '#C8D4B8' },
   ]
+
   return (
     <div
       className="relative rounded-2xl overflow-hidden shadow-xl"
@@ -123,6 +124,7 @@ function WorkflowMockup() {
         background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F6F2 100%)',
         border: '1px solid #E4E0D8',
         padding: '28px',
+        width: '100%',
         maxWidth: 380,
       }}
     >
@@ -222,6 +224,7 @@ interface ConceptCardProps {
 
 function ConceptCard({ title, objective, architecture, accent, icon, delay }: ConceptCardProps) {
   const [hovered, setHovered] = useState(false)
+
   return (
     <div
       className={`animate-fade-up ${delay} rounded-2xl overflow-hidden cursor-default`}
@@ -250,7 +253,6 @@ function ConceptCard({ title, objective, architecture, accent, icon, delay }: Co
           overflow: 'hidden',
         }}
       >
-        {/* Grid decoration */}
         <div
           style={{
             position: 'absolute',
@@ -285,12 +287,8 @@ function ConceptCard({ title, objective, architecture, accent, icon, delay }: Co
         >
           {objective}
         </p>
-        <div
-          style={{
-            paddingTop: 14,
-            borderTop: '1px solid #E4E0D8',
-          }}
-        >
+
+        <div style={{ paddingTop: 14, borderTop: '1px solid #E4E0D8' }}>
           <p
             style={{
               fontFamily: 'var(--font-sans)',
@@ -375,6 +373,7 @@ function StatBlock({ number, label }: { number: string; label: string }) {
 // ─── Nav ──────────────────────────────────────────────────────────────────────
 function Nav({ scrollY }: { scrollY: number }) {
   const elevated = scrollY > 40
+
   return (
     <nav
       style={{
@@ -406,6 +405,7 @@ function Nav({ scrollY }: { scrollY: number }) {
       >
         jellie joyce andaya
       </span>
+
       <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
         {['Work', 'About', 'Certs', 'Contact'].map((item) => (
           <a
@@ -454,131 +454,6 @@ function Nav({ scrollY }: { scrollY: number }) {
   )
 }
 
-// ─── Certificate Card ────────────────────────────────────────────────────────
-interface CertCardProps {
-  title: string
-  issuer: string
-  date: string
-  url: string
-  accent: string
-}
-
-function CertCard({ title, issuer, date, url, accent }: CertCardProps) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        textDecoration: 'none',
-        background: '#FFFFFF',
-        border: `1px solid ${hovered ? accent : '#E4E0D8'}`,
-        borderRadius: 16,
-        overflow: 'hidden',
-        transition: 'border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease',
-        boxShadow: hovered
-          ? `0 16px 40px rgba(0,0,0,0.08), 0 0 0 1px ${accent}`
-          : '0 2px 10px rgba(0,0,0,0.04)',
-        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Accent strip + icon */}
-      <div
-        style={{
-          height: 72,
-          background: `linear-gradient(135deg, ${accent}66 0%, ${accent}22 100%)`,
-          display: 'flex',
-          alignItems: 'center',
-          paddingLeft: 20,
-          gap: 12,
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Subtle dot grid */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: `radial-gradient(circle, ${accent}55 1px, transparent 1px)`,
-            backgroundSize: '16px 16px',
-          }}
-        />
-        {/* Certificate badge icon */}
-        <div
-          style={{
-            position: 'relative',
-            zIndex: 1,
-            width: 40,
-            height: 40,
-            borderRadius: 10,
-            background: '#FFFFFF',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-            flexShrink: 0,
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B9B78" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="8" r="6"/>
-            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
-          </svg>
-        </div>
-        {/* Link arrow */}
-        <div style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9B9890" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 17 17 7M7 7h10v10"/>
-          </svg>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div style={{ padding: '18px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <p
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '1rem',
-            color: '#1C1C18',
-            lineHeight: 1.3,
-            marginBottom: 4,
-          }}
-        >
-          {title}
-        </p>
-        <p
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.85rem',
-            color: '#6B6860',
-            fontWeight: 400,
-          }}
-        >
-          {issuer}
-        </p>
-        <div style={{ marginTop: 'auto', paddingTop: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: accent, flexShrink: 0 }} />
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.75rem',
-              color: '#9B9890',
-              letterSpacing: '0.04em',
-            }}
-          >
-            {date}
-          </span>
-        </div>
-      </div>
-    </a>
-  )
-}
-
 // ─── Contact Form ─────────────────────────────────────────────────────────────
 function ContactForm() {
   const [submitted, setSubmitted] = useState(false)
@@ -601,6 +476,7 @@ function ContactForm() {
     e.target.style.borderColor = '#6B9B78'
     e.target.style.boxShadow = '0 0 0 3px rgba(107, 155, 120, 0.12)'
   }
+
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     e.target.style.borderColor = '#E4E0D8'
     e.target.style.boxShadow = 'none'
@@ -610,25 +486,23 @@ function ContactForm() {
     e.preventDefault()
     setIsSending(true)
 
-    // Scraping form fields straight out of the active element layout context
     const formData = new FormData(e.currentTarget)
-    formData.append("access_key", "5610e500-aa2b-4bd5-b35c-22909c198635")
-    formData.append("subject", "New Portfolio Lead Inflow Notification")
+    formData.append('access_key', '5610e500-aa2b-4bd5-b35c-22909c198635')
+    formData.append('subject', 'New Portfolio Lead Inflow Notification')
 
     try {
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
         body: formData,
       })
-
       const result = await response.json()
       if (result.success) {
         setSubmitted(true)
       } else {
-        alert("The server received the data packet but rejected the parameters.")
+        alert('The server received the data packet but rejected the parameters.')
       }
     } catch (error) {
-      alert("Submission error. Please check your network connection and retry.")
+      alert('Submission error. Please check your network connection and retry.')
     } finally {
       setIsSending(false)
     }
@@ -666,9 +540,7 @@ function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* Hidden honeypot field prevents bot entries and forces Web3Forms validation success */}
-      <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }}></input>
-
+      <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }} />
       <div className="contact-form-name-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div>
           <label
@@ -695,8 +567,6 @@ function ContactForm() {
             onBlur={handleBlur}
             spellCheck={false}
             autoComplete="name"
-            data-gramm="false"
-            data-gramm_editor="false"
           />
         </div>
         <div>
@@ -724,8 +594,6 @@ function ContactForm() {
             onBlur={handleBlur}
             spellCheck={false}
             autoComplete="email"
-            data-gramm="false"
-            data-gramm_editor="false"
           />
         </div>
       </div>
@@ -754,8 +622,6 @@ function ContactForm() {
           onBlur={handleBlur}
           spellCheck={false}
           autoComplete="off"
-          data-gramm="false"
-          data-gramm_editor="false"
         />
       </div>
       <button
@@ -791,8 +657,6 @@ function ContactForm() {
     </form>
   )
 }
-
-
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
@@ -854,617 +718,278 @@ export default function App() {
       <ParallaxShapes scrollY={scrollY} />
       <Nav scrollY={scrollY} />
 
-{/* ── HERO ──────────────────────────────────────────────────────────── */}
-<section
-  ref={heroRef}
-  className="hero-section"
-  style={{
-    position: 'relative',
-    zIndex: 1,
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '120px 40px 80px',
-    maxWidth: 1100,
-    margin: '0 auto',
-  }}
->
-  <div
-    style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-      gap: 48,
-      alignItems: 'center',
-      width: '100%',
-    }}
-  >
-    {/* Left Column: Copy & Actions */}
-    <div style={{ textAlign: 'left' }}>
-      {/* Role pill */}
-      <div
-        className="animate-fade-in"
+      {/* ── HERO ──────────────────────────────────────────────────────────── */}
+      <section
+        ref={heroRef}
+        className="hero-section"
         style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          background: '#FFFFFF',
-          border: '1px solid #E4E0D8',
-          borderRadius: 100,
-          padding: '6px 18px',
-          marginBottom: 24,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-        }}
-      >
-        <span
-          style={{
-            width: 7,
-            height: 7,
-            borderRadius: '50%',
-            background: '#6B9B78',
-            display: 'inline-block',
-            boxShadow: '0 0 0 3px rgba(107,155,120,0.25)',
-          }}
-        />
-        <span
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.8rem',
-            fontWeight: 500,
-            color: '#6B6860',
-            letterSpacing: '0.04em',
-          }}
-        >
-          GoHighLevel Specialist | CRM & Marketing Automation
-        </span>
-      </div>
-
-      {/* Hero headline */}
-      <h1
-        className="animate-fade-up delay-100"
-        style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 'clamp(2.5rem, 5vw, 4.2rem)',
-          color: '#1C1C18',
-          lineHeight: 1.1,
-          letterSpacing: '-0.02em',
-          marginBottom: 20,
-        }}
-      >
-        Systems that work <br />
-        <span style={{ color: '#6B9B78' }}>while you sleep.</span>
-      </h1>
-
-      {/* Sub-text */}
-      <p
-        className="animate-fade-up delay-200"
-        style={{
-          fontFamily: 'var(--font-sans)',
-          fontSize: '0.95rem',
-          color: '#6B6860',
-          maxWidth: 460,
-          lineHeight: 1.7,
-          marginBottom: 36,
-          fontWeight: 300,
-        }}
-      >
-        Automating the repetitive so your business captures, nurtures, and closes leads — without you lifting a finger.
-      </p>
-
-      {/* CTA buttons */}
-      <div
-        className="hero-ctas animate-fade-up delay-300"
-        style={{
+          position: 'relative',
+          zIndex: 1,
+          minHeight: '100vh',
           display: 'flex',
-          gap: 14,
-          flexWrap: 'wrap',
-          justifyContent: 'flex-start',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '120px 40px 80px',
+          maxWidth: 1100,
+          margin: '0 auto',
         }}
       >
-        <a
-          href="#work"
+        <div
           style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.9rem',
-            fontWeight: 600,
-            color: '#FFFFFF',
-            background: '#1C1C18',
-            borderRadius: 100,
-            padding: '14px 28px',
-            textDecoration: 'none',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: 48,
+            alignItems: 'center',
+            width: '100%',
           }}
         >
-          View Work
-        </a>
-        <a
-          href="#contact"
+          {/* Left Column: Copy & Actions */}
+          <div style={{ textAlign: 'left' }}>
+            {/* Role pill */}
+            <div
+              className="animate-fade-in"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                background: '#FFFFFF',
+                border: '1px solid #E4E0D8',
+                borderRadius: 100,
+                padding: '6px 18px',
+                marginBottom: 24,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              }}
+            >
+              <span
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  background: '#6B9B78',
+                  display: 'inline-block',
+                  boxShadow: '0 0 0 3px rgba(107,155,120,0.25)',
+                }}
+              />
+              <span
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.8rem',
+                  fontWeight: 500,
+                  color: '#6B6860',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                GoHighLevel Specialist | CRM & Marketing Automation
+              </span>
+            </div>
+
+            {/* Hero headline */}
+            <h1
+              className="animate-fade-up delay-100"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(2.5rem, 5vw, 4.2rem)',
+                color: '#1C1C18',
+                lineHeight: 1.1,
+                letterSpacing: '-0.02em',
+                marginBottom: 20,
+              }}
+            >
+              Systems that work <br />
+              <span style={{ color: '#6B9B78' }}>while you sleep.</span>
+            </h1>
+
+            {/* Sub-text */}
+            <p
+              className="animate-fade-up delay-200"
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.95rem',
+                color: '#6B6860',
+                maxWidth: 460,
+                lineHeight: 1.7,
+                marginBottom: 36,
+                fontWeight: 300,
+              }}
+            >
+              Automating the repetitive so your business captures, nurtures, and closes leads —
+              without you lifting a finger.
+            </p>
+
+            {/* CTA buttons */}
+            <div
+              className="hero-ctas animate-fade-up delay-300"
+              style={{
+                display: 'flex',
+                gap: 14,
+                flexWrap: 'wrap',
+                justifyContent: 'flex-start',
+              }}
+            >
+              <a
+                href="#work"
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  color: '#FFFFFF',
+                  background: '#1C1C18',
+                  borderRadius: 100,
+                  padding: '14px 28px',
+                  textDecoration: 'none',
+                }}
+              >
+                View Work
+              </a>
+              <a
+                href="#contact"
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.9rem',
+                  fontWeight: 500,
+                  color: '#1C1C18',
+                  background: '#FFFFFF',
+                  border: '1px solid #E4E0D8',
+                  borderRadius: 100,
+                  padding: '14px 28px',
+                  textDecoration: 'none',
+                }}
+              >
+                Get in Touch
+              </a>
+            </div>
+          </div>
+
+          {/* Right Column: Workflow Mockup */}
+          <div
+            className="animate-fade-up delay-200"
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <WorkflowMockup />
+          </div>
+        </div>
+      </section>
+
+      {/* ── STATS BAR ──────────────────────────────────────────────────────── */}
+      <section style={{ position: 'relative', zIndex: 1, padding: '0 40px 80px' }}>
+        <div
           style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.9rem',
-            fontWeight: 500,
-            color: '#1C1C18',
+            maxWidth: 1100,
+            margin: '0 auto',
             background: '#FFFFFF',
             border: '1px solid #E4E0D8',
-            borderRadius: 100,
-            padding: '14px 28px',
-            textDecoration: 'none',
+            borderRadius: 24,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.03)',
           }}
         >
-          Get in Touch
-        </a>
-      </div>
-    </div>
+          <StatBlock number="< 2 min" label="Avg. Lead Response Time" />
+          <StatBlock number="100%" label="Automated Follow-Up" />
+          <StatBlock number="24/7" label="System Availability" />
+        </div>
+      </section>
 
-    {/* Right Column: Workflow Mockup */}
-    <div
-      className="animate-fade-up delay-200"
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <WorkflowMockup />
-    </div>
-  </div>
-</section>
-      
-
-      {/* ── CONCEPT SNAPSHOTS ─────────────────────────────────────────────── */}
+      {/* ── CONCEPTS / WORK ─────────────────────────────────────────────────── */}
       <section
         id="work"
-        className="concepts-section"
         style={{
           position: 'relative',
           zIndex: 1,
           padding: '100px 40px',
-          maxWidth: 1160,
+          maxWidth: 1100,
           margin: '0 auto',
         }}
       >
-        {/* Section label */}
-        <div style={{ marginBottom: 56, maxWidth: 640 }}>
-          <span
+        <div style={{ marginBottom: 56 }}>
+          <p
             style={{
               fontFamily: 'var(--font-sans)',
-              fontSize: '0.75rem',
+              fontSize: '0.78rem',
               fontWeight: 600,
               color: '#6B9B78',
-              letterSpacing: '0.12em',
+              letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              display: 'block',
-              marginBottom: 14,
+              marginBottom: 10,
             }}
           >
-            Platform Blueprints
-          </span>
+            Proof of Concept
+          </p>
           <h2
             style={{
               fontFamily: 'var(--font-display)',
               fontSize: 'clamp(2rem, 4vw, 3rem)',
               color: '#1C1C18',
               lineHeight: 1.15,
-              marginBottom: 16,
               letterSpacing: '-0.015em',
             }}
           >
-            Concept Snapshots &amp;{' '}
-            <span style={{ fontStyle: 'italic', color: '#6B9B78' }}>Interactive Builds</span>
+            Systems I build <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>& deploy.</span>
           </h2>
-          <p
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '1rem',
-              color: '#6B6860',
-              lineHeight: 1.7,
-              fontWeight: 300,
-            }}
-          >
-           Pre-configured GoHighLevel frameworks engineered to solve common business
-            bottlenecks. Built completely from scratch in my development sandbox.
-          </p>
         </div>
 
-        {/* Cards grid */}
         <div
-          className="concepts-grid"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 24,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))',
+            gap: 28,
           }}
         >
-          {concepts.map((c) => (
-            <ConceptCard key={c.title} {...c} />
+          {concepts.map((concept, i) => (
+            <ConceptCard key={i} {...concept} />
           ))}
         </div>
       </section>
 
-      {/* ── BACKGROUND & SKILLS ───────────────────────────────────────────── */}
+      {/* ── ABOUT & SKILLS ─────────────────────────────────────────────────── */}
       <section
         id="about"
-        className="about-section"
         style={{
           position: 'relative',
           zIndex: 1,
           padding: '100px 40px',
-          background: 'transparent',
+          maxWidth: 1100,
+          margin: '0 auto',
         }}
       >
         <div
           style={{
-            maxWidth: 1160,
-            margin: '0 auto',
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: 80,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: 60,
             alignItems: 'start',
           }}
-          className="about-grid"
         >
-          {/* Left: narrative */}
           <div>
-            <span
-              style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                color: '#6B9B78',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                display: 'block',
-                marginBottom: 14,
-              }}
-            >
-              Background
-            </span>
-            <h2
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(1.8rem, 3vw, 2.5rem)',
-                color: '#1C1C18',
-                lineHeight: 1.2,
-                marginBottom: 28,
-                letterSpacing: '-0.015em',
-              }}
-            >
-              Hey there! Meet your{' '}
-              <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Operational Co-Pilot</span>
-            </h2>
-
-            {/* Profile mini-card */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 18,
-                marginBottom: 28,
-                background: '#FFFFFF',
-                borderRadius: 16,
-                border: '1px solid #E4E0D8',
-                padding: '18px',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
-              }}
-            >
-              {/* Photo placeholder */}
-              <div
-                style={{
-                  width: 72,
-                  height: 72,
-                  borderRadius: 14,
-                  background: 'linear-gradient(135deg, #B8D4BF 0%, #D5CAEB 100%)',
-                  flexShrink: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 28,
-                  border: '2px dashed #C8DCC0',
-                  overflow: 'hidden',
-                }}
-                title="Replace with your photo"
-              >
-                🪴
-              </div>
-              {/* Info */}
-              <div style={{ flex: 1 }}>
-                <p
-                  style={{
-                    fontFamily: "'Trispace', monospace",
-                    fontSize: '1rem',
-                    fontWeight: 400,
-                    color: '#1C1C18',
-                    letterSpacing: '0.04em',
-                    marginBottom: 4,
-                  }}
-                >
-                  Jellie Joyce Andaya
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  {[
-                    { icon: '📍', text: '  Tokyo, Japan' },
-                    { icon: '💼', text: 'GoHighLevel / Automation Specialist' },
-                    { icon: '🕐', text: 'Available · GMT+9' },
-                  ].map((item) => (
-                    <span
-                      key={item.text}
-                      style={{
-                        fontFamily: 'var(--font-sans)',
-                        fontSize: '0.8rem',
-                        color: '#6B6860',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 6,
-                      }}
-                    >
-                      <span style={{ fontSize: '0.75rem' }}>{item.icon}</span>
-                      {item.text}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
             <p
               style={{
                 fontFamily: 'var(--font-sans)',
-                fontSize: '0.95rem',
-                color: '#4A4A46',
-                lineHeight: 1.8,
-                fontWeight: 300,
-              }}
-            >
-I am a GoHighLevel / Automation Specialist focused on transforming messy business operations into streamlined, revenue-generating machines.
-By centralizing your marketing, sales pipelines, and customer communication into one cohesive platform, I eliminate technical headaches and cut software overhead costs.
-When you partner with me, you get an agile, platform-focused expert who delivers turnkey automation, handling all the heavy lifting so you can focus entirely on serving your clients.
-           <br />
-           <br />
-Outside of work, I swap digital architecture for the beauty of the open ocean.
-I am a Molchanovs Certified Advanced Freediver and a PADI Certified Open Water Diver, and nothing compares to the absolute clarity and peace of being under the sea.
-Navigating complex business workflows actually requires a lot of the same calm, discipline, and adaptability as diving into the deep blue—and I bring that exact focus 
-              to every automation ecosystem I build.
-            </p>
-          </div>
-
-          {/* Right: stats + skills */}
-          <div>
-            {/* Stats grid */}
-            <div
-              className="stats-grid"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                background: '#FFFFFF',
-                borderRadius: 20,
-                border: '1px solid #E4E0D8',
-                overflow: 'hidden',
-                marginBottom: 28,
-                boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
-              }}
-            >
-              {[
-                { number: '0', label: 'Missed Leads' },
-                { number: '10+', label: 'Custom Funnels Built' },
-                { number: '24/7', label: 'Automated Systems' },
-              ].map((stat, i) => (
-                <div
-                  key={stat.label}
-                  style={{
-                    borderRight: i < 2 ? '1px solid #E4E0D8' : 'none',
-                  }}
-                >
-                  <StatBlock {...stat} />
-                </div>
-              ))}
-            </div>
-
-            {/* Skills & Tools */}
-            <div
-              style={{
-                background: '#FFFFFF',
-                borderRadius: 20,
-                border: '1px solid #E4E0D8',
-                padding: '24px',
-                boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  color: '#9B9890',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  marginBottom: 16,
-                }}
-              >
-                Skills &amp; Tools
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {skills.map((s) => (
-                  <SkillChip key={s} label={s} />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-{/* ── CERTIFICATES / CREDENTIALS ──────────────────────────────────── */}
-<section
-  id="certificates"
-  style={{
-    position: 'relative',
-    zIndex: 1,
-    padding: '100px 40px',
-    maxWidth: 1100,
-    margin: '0 auto',
-  }}
->
-  <div style={{ maxWidth: '720px', margin: '0' }}>
-    <h2
-      style={{
-        fontFamily: 'var(--font-display)',
-        fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)',
-        color: '#1C1C18',
-        lineHeight: 1.15,
-        letterSpacing: '-0.015em',
-        marginBottom: 8,
-      }}
-    >
-      <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Credentials</span>
-    </h2>
-
-    <p
-      style={{
-        fontFamily: 'var(--font-sans)',
-        fontSize: '0.9rem',
-        color: '#6B6860',
-        lineHeight: 1.6,
-        fontWeight: 300,
-        marginBottom: 32,
-      }}
-    >
-      Verified certifications & professional training
-    </p>
-
-    {/* Minimalist List */}
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {[
-        {
-          title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
-          issuer: 'Google',
-          date: '2026',
-          url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414443?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
-        },
-        {
-          title: 'AI Fluency Framework & Foundations',
-          issuer: 'Anthropic',
-          date: '2026',
-          url: 'https://verify.skilljar.com/c/2drrus4jxbrv',
-        },
-        {
-          title: 'AI Capabilities and Limitations',
-          issuer: 'Anthropic',
-          date: '2026',
-          url: 'https://verify.skilljar.com/c/uhroqca7r38j',
-        },
-        {
-          title: 'Introduction to Responsible AI',
-          issuer: 'Google',
-          date: '2026',
-          url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414962?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
-        },
-        {
-          title: 'Claude 101',
-          issuer: 'Anthropic',
-          date: '2026',
-          url: 'https://verify.skilljar.com/c/6nkq7vzv5y7g',
-        },
-        {
-          title: 'Introduction to Claude Cowork',
-          issuer: 'Anthropic',
-          date: '2026',
-          url: 'https://verify.skilljar.com/c/uav39s8hemj8',
-        },
-      ].map((cert, index) => (
-        <a
-          key={index}
-          href={cert.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '16px 0',
-            borderBottom: '1px solid #EAE8E3',
-            textDecoration: 'none',
-            gap: '16px',
-          }}
-        >
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.95rem',
-              color: '#1C1C18',
-              fontWeight: 400,
-            }}
-          >
-            {cert.title}
-          </span>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-            <span
-              style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: '0.8rem',
-                color: '#8A8780',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-              }}
-            >
-              {cert.issuer}
-            </span>
-            <span
-              style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: '0.8rem',
-                color: '#B5B2AA',
-              }}
-            >
-              ↗
-            </span>
-          </div>
-        </a>
-      ))}
-    </div>
-  </div>
-</section>
-      
-      
-      {/* ── CONTACT ───────────────────────────────────────────────────────── */}
-      <section
-        id="contact"
-        className="contact-section"
-        style={{
-          position: 'relative',
-          zIndex: 1,
-          padding: '100px 40px',
-          maxWidth: 1160,
-          margin: '0 auto',
-        }}
-      >
-        <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 80, alignItems: 'start' }}>
-          {/* Left: copy */}
-          <div>
-            <span
-              style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: '0.75rem',
+                fontSize: '0.78rem',
                 fontWeight: 600,
                 color: '#6B9B78',
-                letterSpacing: '0.12em',
+                letterSpacing: '0.1em',
                 textTransform: 'uppercase',
-                display: 'block',
-                marginBottom: 14,
+                marginBottom: 10,
               }}
             >
-              Contact
-            </span>
+              About
+            </p>
             <h2
               style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: 'clamp(2rem, 4vw, 3rem)',
+                fontSize: 'clamp(2rem, 3.5vw, 2.8rem)',
                 color: '#1C1C18',
                 lineHeight: 1.15,
-                marginBottom: 20,
                 letterSpacing: '-0.015em',
+                marginBottom: 24,
               }}
             >
-              Let's build something{' '}
-              <span style={{ fontStyle: 'italic', color: '#6B9B78' }}>together.</span>
+              Bridging marketing Strategy & <br />
+              <span style={{ fontStyle: 'italic', color: '#C4935A' }}>technical execution.</span>
             </h2>
             <p
               style={{
@@ -1472,122 +997,248 @@ Navigating complex business workflows actually requires a lot of the same calm, 
                 fontSize: '0.95rem',
                 color: '#6B6860',
                 lineHeight: 1.75,
+                marginBottom: 18,
                 fontWeight: 300,
-                marginBottom: 40,
               }}
             >
-              Whether you're starting from scratch or cleaning up a messy CRM, I'm here to help.
-              Reach out and let's figure out what you need.
+              I specialize in turning chaotic, manual sales processes into streamlined, high-converting GoHighLevel engines. My focus is on eliminating repetitive work and building reliable systems that scale smoothly.
             </p>
-
-            {/* Availability badge */}
-            <div
+            <p
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 10,
-                background: '#F0F7F2',
-                border: '1px solid #C8DCC0',
-                borderRadius: 100,
-                padding: '10px 20px',
-                marginBottom: 32,
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.95rem',
+                color: '#6B6860',
+                lineHeight: 1.75,
+                fontWeight: 300,
               }}
             >
-              <span
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  background: '#6B9B78',
-                  display: 'inline-block',
-                  boxShadow: '0 0 0 3px rgba(107,155,120,0.3)',
-                }}
-              />
-              <span
-                style={{
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: '0.85rem',
-                  fontWeight: 500,
-                  color: '#4A5C4E',
-                }}
-              >
-                Available for new projects
-              </span>
-            </div>
+              Whether you need to capture more leads, speed up follow-ups, or completely automate your booking pipeline, I design solutions custom-built for your business operations.
+            </p>
+          </div>
 
-            {/* Direct contact links */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {[
-                {
-                  icon: (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="4" width="20" height="16" rx="2"/>
-                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-                    </svg>
-                  ),
-                  label: 'Email',
-                  value: 'hello.jjoyce@gmail.com',
-                  href: 'mailto:hello.jjoyce@gmail.com',
-                },
-                {
-                  icon: (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="2" width="20" height="20" rx="5"/>
-                      <circle cx="12" cy="12" r="4"/>
-                      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
-                    </svg>
-                  ),
-                  label: 'Instagram',
-                  value: '@jelejoys',
-                  href: 'https://instagram.com/jelejoys',
-                },
-              ].map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target={link.href.startsWith('mailto') ? undefined : '_blank'}
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    padding: '12px 16px',
-                    background: '#FAFAF6',
-                    border: '1px solid #E4E0D8',
-                    borderRadius: 12,
-                    textDecoration: 'none',
-                    color: '#4A4A46',
-                    transition: 'border-color 0.2s ease, background 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    ;(e.currentTarget as HTMLElement).style.borderColor = '#6B9B78'
-                    ;(e.currentTarget as HTMLElement).style.background = '#F0F7F2'
-                  }}
-                  onMouseLeave={(e) => {
-                    ;(e.currentTarget as HTMLElement).style.borderColor = '#E4E0D8'
-                    ;(e.currentTarget as HTMLElement).style.background = '#FAFAF6'
-                  }}
-                >
-                  <span style={{ color: '#6B9B78', display: 'flex', flexShrink: 0 }}>{link.icon}</span>
-                  <div>
-                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.72rem', fontWeight: 600, color: '#9B9890', letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 1 }}>{link.label}</p>
-                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.87rem', color: '#4A4A46' }}>{link.value}</p>
-                  </div>
-                </a>
+          <div>
+            <p
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                color: '#9B9890',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                marginBottom: 18,
+              }}
+            >
+              Core Capabilities
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+              {skills.map((skill) => (
+                <SkillChip key={skill} label={skill} />
               ))}
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Right: form */}
+      {/* ── CERTIFICATES / CREDENTIALS ──────────────────────────────────── */}
+      <section
+        id="certificates"
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          padding: '100px 40px',
+          maxWidth: 1100,
+          margin: '0 auto',
+        }}
+      >
+        <div>
+          <h2
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)',
+              color: '#1C1C18',
+              lineHeight: 1.15,
+              letterSpacing: '-0.015em',
+              marginBottom: 8,
+            }}
+          >
+            <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Credentials</span>
+          </h2>
+
+          <p
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: '0.9rem',
+              color: '#6B6860',
+              lineHeight: 1.6,
+              fontWeight: 300,
+              marginBottom: 32,
+            }}
+          >
+            Verified certifications & professional training
+          </p>
+
+          {/* Minimalist List */}
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {[
+              {
+                title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
+                issuer: 'Google',
+                date: '2026',
+                url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414443?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
+              },
+              {
+                title: 'AI Fluency Framework & Foundations',
+                issuer: 'Anthropic',
+                date: '2026',
+                url: 'https://verify.skilljar.com/c/2drrus4jxbrv',
+              },
+              {
+                title: 'AI Capabilities and Limitations',
+                issuer: 'Anthropic',
+                date: '2026',
+                url: 'https://verify.skilljar.com/c/uhroqca7r38j',
+              },
+              {
+                title: 'Introduction to Responsible AI',
+                issuer: 'Google',
+                date: '2026',
+                url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414962?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
+              },
+              {
+                title: 'Claude 101',
+                issuer: 'Anthropic',
+                date: '2026',
+                url: 'https://verify.skilljar.com/c/6nkq7vzv5y7g',
+              },
+              {
+                title: 'Introduction to Claude Cowork',
+                issuer: 'Anthropic',
+                date: '2026',
+                url: 'https://verify.skilljar.com/c/uav39s8hemj8',
+              },
+            ].map((cert, index) => (
+              <a
+                key={index}
+                href={cert.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '16px 0',
+                  borderBottom: '1px solid #EAE8E3',
+                  textDecoration: 'none',
+                  gap: '16px',
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: '0.95rem',
+                    color: '#1C1C18',
+                    fontWeight: 400,
+                  }}
+                >
+                  {cert.title}
+                </span>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-sans)',
+                      fontSize: '0.8rem',
+                      color: '#8A8780',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    {cert.issuer}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-sans)',
+                      fontSize: '0.8rem',
+                      color: '#B5B2AA',
+                    }}
+                  >
+                    ↗
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CONTACT ─────────────────────────────────────────────────────────── */}
+      <section
+        id="contact"
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          padding: '100px 40px 120px',
+          maxWidth: 1100,
+          margin: '0 auto',
+        }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: 60,
+            alignItems: 'start',
+          }}
+        >
+          <div>
+            <p
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                color: '#6B9B78',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                marginBottom: 10,
+              }}
+            >
+              Contact
+            </p>
+            <h2
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(2rem, 4vw, 3rem)',
+                color: '#1C1C18',
+                lineHeight: 1.15,
+                letterSpacing: '-0.015em',
+                marginBottom: 20,
+              }}
+            >
+              Let's build your <br />
+              <span style={{ fontStyle: 'italic', color: '#6B9B78' }}>automation system.</span>
+            </h2>
+            <p
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.95rem',
+                color: '#6B6860',
+                lineHeight: 1.7,
+                marginBottom: 32,
+                fontWeight: 300,
+              }}
+            >
+              Ready to automate your follow-ups, speed up response times, or streamline your pipelines? Send me a message and let's talk.
+            </p>
+          </div>
+
           <div>
             <ContactForm />
           </div>
         </div>
       </section>
 
-      {/* ── FOOTER ────────────────────────────────────────────────────────── */}
+      {/* ── FOOTER ─────────────────────────────────────────────────────────── */}
       <footer
-        className="site-footer"
         style={{
           position: 'relative',
           zIndex: 1,
@@ -1596,121 +1247,24 @@ Navigating complex business workflows actually requires a lot of the same calm, 
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          maxWidth: 1100,
+          margin: '0 auto',
         }}
       >
         <span
           style={{
             fontFamily: "'Trispace', monospace",
-            fontSize: '0.9rem',
-            fontWeight: 400,
-            color: '#1C1C18',
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-          }}
-        >
-          Work With Me
-        </span>
-        <span
-          style={{
-            fontFamily: 'var(--font-sans)',
             fontSize: '0.8rem',
-            color: '#B8B4AC',
+            color: '#9B9890',
+            letterSpacing: '0.04em',
           }}
         >
-          © {new Date().getFullYear()} — Built to automate.
+          © {new Date().getFullYear()} jellie joyce andaya
+        </span>
+        <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.8rem', color: '#9B9890' }}>
+          Built with GoHighLevel Focus
         </span>
       </footer>
-
-      {/* Responsive styles */}
-      <style>{`
-        /* ── Tablet (≤1024px) ── */
-        @media (max-width: 1024px) {
-          .about-grid {
-            grid-template-columns: 1fr !important;
-            gap: 48px !important;
-          }
-          .contact-grid {
-            grid-template-columns: 1fr !important;
-            gap: 48px !important;
-          }
-        }
-
-        /* ── Mobile (≤768px) ── */
-        @media (max-width: 768px) {
-          /* Nav */
-          .nav-links { display: none !important; }
-          .nav-cta { display: none !important; }
-          nav { padding: 0 20px !important; }
-
-          /* Hero */
-          .hero-section {
-            padding: 100px 24px 60px !important;
-            min-height: auto !important;
-          }
-          .hero-ctas {
-            flex-direction: column !important;
-            align-items: stretch !important;
-            gap: 10px !important;
-          }
-          .hero-ctas a {
-            text-align: center !important;
-          }
-
-          /* Concept cards */
-          .concepts-section {
-            padding: 72px 24px !important;
-          }
-          .concepts-grid {
-            grid-template-columns: 1fr !important;
-          }
-
-          /* About */
-          .about-section {
-            padding: 72px 24px !important;
-          }
-          .about-grid {
-            grid-template-columns: 1fr !important;
-            gap: 36px !important;
-          }
-          .stats-grid {
-            grid-template-columns: repeat(3, 1fr) !important;
-          }
-
-          /* Contact */
-          .contact-section {
-            padding: 72px 24px !important;
-          }
-          .contact-form-name-row {
-            grid-template-columns: 1fr !important;
-          }
-
-          /* Footer */
-          .site-footer {
-            padding: 24px 20px !important;
-            flex-direction: column !important;
-            gap: 8px !important;
-            text-align: center !important;
-          }
-        }
-
-        /* ── Small phones (≤480px) ── */
-        @media (max-width: 480px) {
-          .stats-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .stats-grid > div {
-            border-right: none !important;
-            border-bottom: 1px solid #E4E0D8 !important;
-          }
-          .stats-grid > div:last-child {
-            border-bottom: none !important;
-          }
-          .profile-card {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-          }
-        }
-      `}</style>
     </div>
   )
 }
