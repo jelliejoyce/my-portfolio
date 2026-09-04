@@ -514,7 +514,7 @@ function NameImageReveal({ text, imageSrc }: { text: string; imageSrc?: string }
         >
           <div
             className={`reveal-image-enter${hovered ? ' is-active' : ''}`}
-            style={{ transform: 'translate(0, -115%)' }}
+            style={{ transform: 'translate(55px, -50%)' }}
           >
             <div
               ref={cardRef}
@@ -2238,15 +2238,17 @@ export default function App() {
         }
 
         /* ── Name image-reveal hover card ── */
+        /* Positioned to the middle-right of the cursor so the fixed navbar
+           cannot cover the upper portion of the reveal. */
         .reveal-image-enter {
           opacity: 0;
-          transform: translate(0, -115%) scale(0.95);
+          transform: translate(55px, -50%) scale(0.95);
           transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
             transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .reveal-image-enter.is-active {
           opacity: 1;
-          transform: translate(0, -115%) scale(1);
+          transform: translate(55px, -50%) scale(1);
         }
         .reveal-image-card {
           width: 190px;
