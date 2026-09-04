@@ -1567,7 +1567,7 @@ export default function App() {
                 marginBottom: 22,
               }}
             >
-              ✦    ✦    ✦ 
+              ✦ "Systems that work while you sleep."
             </p>
 
             {/* CTAs */}
