@@ -530,52 +530,6 @@ function NameImageReveal({ text, imageSrc }: { text: string; imageSrc?: string }
   )
 }
 
-// ─── HeroPhoto ────────────────────────────────────────────────────────────────
-// Styled placeholder (swap for a real photo later). Glow shifts toward the
-// cursor when hovered; static gradient on touch devices.
-function HeroPhoto() {
-  const ref = useRef<HTMLDivElement>(null)
-  const fine = useFinePointer()
-
-  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!fine || !ref.current) return
-    const rect = ref.current.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - rect.top) / rect.height) * 100
-    ref.current.style.background = `radial-gradient(circle at ${x}% ${y}%, rgba(127,176,143,0.4), rgba(179,157,219,0.28) 55%, #F8FAF8 100%)`
-  }
-  const handleLeave = () => {
-    if (!ref.current) return
-    ref.current.style.background = 'radial-gradient(circle at 50% 30%, rgba(127,176,143,0.4), rgba(179,157,219,0.28) 55%, #F8FAF8 100%)'
-  }
-
-  return (
-    <div
-      ref={ref}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      className="hero-photo animate-fade-in"
-      style={{
-        position: 'relative',
-        borderRadius: 28,
-        aspectRatio: '4 / 5',
-        width: '100%',
-        maxWidth: 300,
-        background: 'radial-gradient(circle at 50% 30%, rgba(127,176,143,0.4), rgba(179,157,219,0.28) 55%, #F8FAF8 100%)',
-        border: '1.5px dashed #C9E4D0',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 72,
-        transition: 'background 0.2s ease',
-      }}
-      title="Replace with your photo"
-    >
-      🪴
-    </div>
-  )
-}
-
 // ─── WorkflowMini ─────────────────────────────────────────────────────────────
 // A small, per-project flow diagram reused from the original WorkflowMockup —
 // relocated here from the hero, per the blueprint. Steps play in, staggered,
@@ -709,7 +663,7 @@ function ProjectCard({ title, objective, architecture, accent, steps, index }: P
             position: 'absolute',
             top: 18,
             right: 20,
-            fontFamily: "'Trispace', monospace",
+            fontFamily: 'var(--font-display)',
             fontSize: '0.75rem',
             color: accent,
             letterSpacing: '0.06em',
@@ -916,7 +870,6 @@ function Nav() {
     { key: 'work', label: 'Work' },
     { key: 'about', label: 'About' },
     { key: 'certificates', label: 'Certs' },
-    { key: 'contact', label: 'Contact' },
   ]
 
   useEffect(() => {
@@ -977,18 +930,21 @@ function Nav() {
             transition: 'box-shadow 0.3s ease',
           }}
         >
-          <span
+          <a
+            href="/"
+            aria-label="JE | Portfolio — Home"
             style={{
-              fontFamily: "'Trispace', monospace",
+              fontFamily: 'var(--font-display)',
               fontSize: '0.95rem',
-              fontWeight: 400,
+              fontWeight: 600,
               color: '#1E1E1C',
-              letterSpacing: '0.04em',
+              letterSpacing: '-0.01em',
               flexShrink: 0,
+              textDecoration: 'none',
             }}
           >
-            jellie <span style={{ color: '#7FB08F' }}>✦</span>
-          </span>
+            ✦ JE <span style={{ color: '#7FB08F' }}>|</span> Portfolio ✦
+          </a>
 
           <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 26 }}>
             <div ref={wrapRef} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 26 }}>
@@ -1499,21 +1455,17 @@ export default function App() {
           className="hero-grid"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'minmax(220px, 340px) 1fr',
-            gap: 64,
+            gridTemplateColumns: '1fr',
+            gap: 0,
             alignItems: 'center',
+            justifyItems: 'center',
             width: '100%',
-            maxWidth: 1080,
+            maxWidth: 900,
             margin: '0 auto',
           }}
         >
-          {/* Left: photo */}
-          <div className="animate-fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
-            <HeroPhoto />
-          </div>
-
-          {/* Right: copy */}
-          <div style={{ textAlign: 'left' }}>
+          {/* Centered hero copy */}
+          <div style={{ textAlign: 'center', width: '100%', maxWidth: 780 }}>
             <h1
               className="animate-fade-up delay-100"
               style={{
@@ -1536,8 +1488,8 @@ export default function App() {
               <span
                 style={{
                   display: 'block',
-                  fontFamily: "'Trispace', monospace",
-                  fontWeight: 500,
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 650,
                   fontSize: 'clamp(2.4rem, 4.4vw, 3.6rem)',
                   letterSpacing: '0.005em',
                   color: '#1E1E1C',
@@ -1591,7 +1543,9 @@ export default function App() {
                 fontFamily: 'var(--font-sans)',
                 fontSize: '1rem',
                 color: '#5B5B57',
-                maxWidth: 460,
+                maxWidth: 660,
+                marginLeft: 'auto',
+                marginRight: 'auto',
                 lineHeight: 1.7,
                 marginBottom: 18,
                 fontWeight: 300,
@@ -1618,7 +1572,7 @@ export default function App() {
             {/* CTAs */}
             <div
               className="hero-ctas animate-fade-up delay-300"
-              style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 26 }}
+              style={{ display: 'flex', justifyContent: 'center', gap: 14, flexWrap: 'wrap', marginBottom: 26 }}
             >
               <Magnetic strength={0.12} max={3}>
                 <a
@@ -1675,7 +1629,7 @@ export default function App() {
             {/* Identity line + availability */}
             <div
               className="animate-fade-up delay-350"
-              style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 14 }}
+              style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center', gap: 14 }}
             >
               <span
                 style={{
@@ -2238,7 +2192,7 @@ export default function App() {
       >
         <span
           style={{
-            fontFamily: "'Trispace', monospace",
+            fontFamily: 'var(--font-display)',
             fontSize: '0.9rem',
             fontWeight: 400,
             color: '#1E1E1C',
@@ -2261,11 +2215,11 @@ export default function App() {
 
       {/* Global + responsive styles */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
         :root {
-          --font-display: 'Abril Fatface', Georgia, serif;
-          --font-sans: 'Montserrat', -apple-system, sans-serif;
+          --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
         .custom-cursor-active,
@@ -2294,9 +2248,9 @@ export default function App() {
           transform: translate(0, -115%) scale(1);
         }
         .reveal-image-card {
-          width: 168px;
-          height: 208px;
-          border-radius: 16px;
+          width: 176px;
+          height: 212px;
+          border-radius: 58% 42% 55% 45% / 40% 58% 42% 60%;
           overflow: hidden;
           background-size: cover;
           background-position: center;
@@ -2307,8 +2261,17 @@ export default function App() {
           align-items: center;
           justify-content: center;
         }
+        .reveal-image-enter.is-active .reveal-image-card {
+          animation: revealBlobMorph 7s ease-in-out infinite;
+        }
+
+        @keyframes revealBlobMorph {
+          0%, 100% { border-radius: 58% 42% 55% 45% / 40% 58% 42% 60%; }
+          50% { border-radius: 44% 56% 48% 52% / 56% 42% 58% 44%; }
+        }
+
         .reveal-image-placeholder {
-          font-family: 'Abril Fatface', Georgia, serif;
+          font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
           font-size: 2.4rem;
           color: #9678C9;
           opacity: 0.4;
@@ -2319,6 +2282,9 @@ export default function App() {
             animation: none !important;
           }
           .bg-loop-square {
+            animation: none !important;
+          }
+          .reveal-image-enter.is-active .reveal-image-card {
             animation: none !important;
           }
           .reveal-section {
@@ -2369,10 +2335,6 @@ export default function App() {
             grid-template-columns: 1fr !important;
             gap: 48px !important;
           }
-          .hero-grid {
-            grid-template-columns: minmax(200px, 260px) 1fr !important;
-            gap: 40px !important;
-          }
         }
 
         /* ── Mobile (\u2264768px) ── */
@@ -2386,12 +2348,9 @@ export default function App() {
           }
           .hero-grid {
             grid-template-columns: 1fr !important;
-            gap: 32px !important;
-            justify-items: center;
+            gap: 0 !important;
+            justify-items: center !important;
             text-align: center !important;
-          }
-          .hero-grid > div:last-child {
-            text-align: left !important;
           }
           .hero-ctas {
             flex-direction: column !important;
