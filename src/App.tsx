@@ -854,10 +854,7 @@ export default function App() {
       <ParallaxShapes scrollY={scrollY} />
       <Nav scrollY={scrollY} />
 
-      {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <section
-        ref={heroRef}
-        className="hero-section"
+
 {/* ── HERO ──────────────────────────────────────────────────────────── */}
 <section
   ref={heroRef}
