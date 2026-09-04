@@ -943,7 +943,7 @@ function Nav() {
               textDecoration: 'none',
             }}
           >
-            ✦ JE <span style={{ color: '#7FB08F' }}>|</span> Portfolio ✦
+            JE <span style={{ color: '#7FB08F' }}>|</span> Portfolio
           </a>
 
           <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 26 }}>
@@ -1470,7 +1470,7 @@ export default function App() {
               className="animate-fade-up delay-100"
               style={{
                 lineHeight: 1.1,
-                marginBottom: 16,
+                marginBottom: 26,
               }}
             >
               <span
@@ -1490,8 +1490,9 @@ export default function App() {
                   display: 'block',
                   fontFamily: 'var(--font-display)',
                   fontWeight: 650,
-                  fontSize: 'clamp(2.4rem, 4.4vw, 3.6rem)',
-                  letterSpacing: '0.005em',
+                  fontSize: 'clamp(3rem, 5.4vw, 4.8rem)',
+                  letterSpacing: '0.01em',
+                  marginBottom: 18,
                   color: '#1E1E1C',
                 }}
               >
@@ -1510,7 +1511,7 @@ export default function App() {
                 border: '1px solid #EAEAE6',
                 borderRadius: 100,
                 padding: '6px 16px',
-                marginBottom: 20,
+                marginBottom: 28,
               }}
             >
               <span
@@ -1566,7 +1567,7 @@ export default function App() {
                 marginBottom: 22,
               }}
             >
-              ✦ "Systems that work while you sleep."
+              ✦    ✦    ✦ 
             </p>
 
             {/* CTAs */}
@@ -2215,11 +2216,11 @@ export default function App() {
 
       {/* Global + responsive styles */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
 
         :root {
-          --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-          --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          --font-display: 'Cormorant Garamond', Georgia, serif;
+          --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
         .custom-cursor-active,
@@ -2248,9 +2249,10 @@ export default function App() {
           transform: translate(0, -115%) scale(1);
         }
         .reveal-image-card {
-          width: 176px;
-          height: 212px;
-          border-radius: 58% 42% 55% 45% / 40% 58% 42% 60%;
+          width: 190px;
+          height: 224px;
+          border-radius: 10px;
+          clip-path: polygon(14% 0%, 100% 0%, 86% 100%, 0% 100%);
           overflow: hidden;
           background-size: cover;
           background-position: center;
@@ -2260,18 +2262,19 @@ export default function App() {
           display: flex;
           align-items: center;
           justify-content: center;
+          will-change: transform;
         }
         .reveal-image-enter.is-active .reveal-image-card {
-          animation: revealBlobMorph 7s ease-in-out infinite;
+          animation: revealParallelogramFloat 5s ease-in-out infinite;
         }
 
-        @keyframes revealBlobMorph {
-          0%, 100% { border-radius: 58% 42% 55% 45% / 40% 58% 42% 60%; }
-          50% { border-radius: 44% 56% 48% 52% / 56% 42% 58% 44%; }
+        @keyframes revealParallelogramFloat {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-5px) rotate(1deg); }
         }
 
         .reveal-image-placeholder {
-          font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          font-family: var(--font-display);
           font-size: 2.4rem;
           color: #9678C9;
           opacity: 0.4;
