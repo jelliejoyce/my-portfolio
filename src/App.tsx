@@ -111,100 +111,115 @@ function ParallaxShapes({ scrollY }: { scrollY: number }) {
 // ─── Workflow Mockup ──────────────────────────────────────────────────────────
 function WorkflowMockup() {
   const steps = [
-    { icon: '⚡', label: 'Lead Captured', color: '#B8D4BF' },
-    { icon: '✉️', label: 'Email Triggered', color: '#D5CAEB' },
-    { icon: '📅', label: 'Calendar Booked', color: '#F5E2B8' },
-    { icon: '✓', label: 'Deal Closed', color: '#C8D4B8' },
+    { icon: '⚡', label: 'Lead Captured', color: '#6B9B78' },
+    { icon: '✉️', label: 'Email Triggered', color: '#9B85C4' },
+    { icon: '📅', label: 'Calendar Booked', color: '#C4935A' },
+    { icon: '✓', label: 'Deal Closed', color: '#5A8A67' },
   ]
   return (
-    <div
-      className="relative rounded-2xl overflow-hidden shadow-xl"
-      style={{
-        background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F6F2 100%)',
-        border: '1px solid #E4E0D8',
-        padding: '28px',
-        maxWidth: 380,
-      }}
-    >
-      {/* Header bar */}
-      <div className="flex items-center gap-2 mb-6">
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#F5B8B8' }} />
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#F5E2B8' }} />
-        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#B8D4BF' }} />
-        <span
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: 11,
-            color: '#9B9890',
-            marginLeft: 8,
-            letterSpacing: '0.05em',
-          }}
-        >
-          automation_workflow.ghl
-        </span>
-      </div>
-
-      {/* Flow steps */}
-      <div className="flex flex-col gap-3">
-        {steps.map((step, i) => (
-          <div key={i} className="flex items-center gap-3">
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                background: step.color,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 16,
-                flexShrink: 0,
-              }}
-            >
-              {step.icon}
-            </div>
-            <div
-              style={{
-                flex: 1,
-                height: 8,
-                borderRadius: 4,
-                background: step.color,
-                opacity: 0.6,
-              }}
-            />
-            <span
-              style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: 12,
-                fontWeight: 500,
-                color: '#6B6860',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {step.label}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Footer stat */}
+    <div className="relative" style={{ maxWidth: 380 }}>
+      {/* Ambient color glow behind the card so it doesn't sit flat on the page */}
       <div
-        className="mt-6 flex items-center justify-between rounded-xl px-4 py-3"
-        style={{ background: '#F2EFE8' }}
+        aria-hidden
+        style={{
+          position: 'absolute',
+          inset: '-30px',
+          background:
+            'radial-gradient(circle at 30% 20%, rgba(107,155,120,0.35), transparent 60%), radial-gradient(circle at 80% 80%, rgba(155,133,196,0.3), transparent 55%)',
+          filter: 'blur(30px)',
+          zIndex: -1,
+        }}
+      />
+      <div
+        className="relative rounded-2xl overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F6F2 100%)',
+          border: '1px solid #E4E0D8',
+          padding: '28px',
+          boxShadow: '0 30px 60px -20px rgba(107,155,120,0.28), 0 8px 24px rgba(0,0,0,0.06)',
+        }}
       >
-        <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#9B9890' }}>
-          Response time
-        </span>
-        <span
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: 13,
-            fontWeight: 600,
-            color: '#6B9B78',
-          }}
+        {/* Header bar */}
+        <div className="flex items-center gap-2 mb-6">
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#F08B8B' }} />
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#F0C158' }} />
+          <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#6B9B78' }} />
+          <span
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: 11,
+              color: '#9B9890',
+              marginLeft: 8,
+              letterSpacing: '0.05em',
+            }}
+          >
+            automation_workflow.ghl
+          </span>
+        </div>
+
+        {/* Flow steps */}
+        <div className="flex flex-col gap-3">
+          {steps.map((step, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  background: `linear-gradient(135deg, ${step.color} 0%, ${step.color}CC 100%)`,
+                  boxShadow: `0 4px 10px ${step.color}55`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 16,
+                  flexShrink: 0,
+                }}
+              >
+                {step.icon}
+              </div>
+              <div
+                style={{
+                  flex: 1,
+                  height: 8,
+                  borderRadius: 4,
+                  background: step.color,
+                  opacity: 0.85,
+                }}
+              />
+              <span
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: '#6B6860',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {step.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer stat */}
+        <div
+          className="mt-6 flex items-center justify-between rounded-xl px-4 py-3"
+          style={{ background: '#F0F7F2' }}
         >
-          &lt; 2 min
-        </span>
+          <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: '#9B9890' }}>
+            Response time
+          </span>
+          <span
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: 13,
+              fontWeight: 600,
+              color: '#6B9B78',
+            }}
+          >
+            &lt; 2 min
+          </span>
+        </div>
       </div>
     </div>
   )
@@ -328,13 +343,13 @@ function SkillChip({ label }: { label: string }) {
         display: 'inline-flex',
         alignItems: 'center',
         fontFamily: 'var(--font-sans)',
-        fontSize: '0.8rem',
+        fontSize: '0.75rem',
         fontWeight: 500,
         color: '#4A5C4E',
         background: '#E8F0EA',
         border: '1px solid #C8DCC0',
         borderRadius: 100,
-        padding: '5px 14px',
+        padding: '4px 12px',
       }}
     >
       {label}
@@ -345,14 +360,14 @@ function SkillChip({ label }: { label: string }) {
 // ─── Stat Block ───────────────────────────────────────────────────────────────
 function StatBlock({ number, label }: { number: string; label: string }) {
   return (
-    <div style={{ textAlign: 'center', padding: '20px 16px' }}>
+    <div style={{ textAlign: 'center', padding: '16px 10px' }}>
       <div
         style={{
           fontFamily: 'var(--font-display)',
-          fontSize: '2.6rem',
+          fontSize: '2rem',
           color: '#6B9B78',
           lineHeight: 1,
-          marginBottom: 6,
+          marginBottom: 5,
         }}
       >
         {number}
@@ -360,7 +375,7 @@ function StatBlock({ number, label }: { number: string; label: string }) {
       <div
         style={{
           fontFamily: 'var(--font-sans)',
-          fontSize: '0.85rem',
+          fontSize: '0.78rem',
           color: '#6B6860',
           fontWeight: 400,
           letterSpacing: '0.02em',
@@ -375,82 +390,199 @@ function StatBlock({ number, label }: { number: string; label: string }) {
 // ─── Nav ──────────────────────────────────────────────────────────────────────
 function Nav({ scrollY }: { scrollY: number }) {
   const elevated = scrollY > 40
+  const [menuOpen, setMenuOpen] = useState(false)
+  const navItems = ['Work', 'About', 'Certs', 'Contact']
+
   return (
-    <nav
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 40px',
-        height: 64,
-        background: elevated ? 'rgba(250, 250, 246, 0.92)' : 'transparent',
-        backdropFilter: elevated ? 'blur(12px)' : 'none',
-        borderBottom: elevated ? '1px solid #E4E0D8' : '1px solid transparent',
-        transition: 'background 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease',
-      }}
-    >
-      <span
+    <>
+      <nav
         style={{
-          fontFamily: "'Trispace', monospace",
-          fontSize: '1rem',
-          fontWeight: 300,
-          color: '#1C1C18',
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 40px',
+          height: 64,
+          background: elevated || menuOpen ? 'rgba(250, 250, 246, 0.92)' : 'transparent',
+          backdropFilter: elevated || menuOpen ? 'blur(12px)' : 'none',
+          borderBottom: elevated || menuOpen ? '1px solid #E4E0D8' : '1px solid transparent',
+          transition: 'background 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease',
         }}
       >
-        jellie joyce andaya
-      </span>
-      <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-        {['Work', 'About', 'Certs', 'Contact'].map((item) => (
+        <span
+          style={{
+            fontFamily: "'Trispace', monospace",
+            fontSize: '1rem',
+            fontWeight: 300,
+            color: '#1C1C18',
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+          }}
+        >
+          jellie joyce andaya
+        </span>
+        <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+          {navItems.map((item) => (
+            <a
+              key={item}
+              href={`#${item === 'Certs' ? 'certificates' : item.toLowerCase()}`}
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: '#4A4A46',
+                textDecoration: 'none',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => ((e.target as HTMLElement).style.color = '#6B9B78')}
+              onMouseLeave={(e) => ((e.target as HTMLElement).style.color = '#4A4A46')}
+            >
+              {item}
+            </a>
+          ))}
           <a
-            key={item}
-            href={`#${item === 'Certs' ? 'certificates' : item.toLowerCase()}`}
+            href="#contact"
             style={{
               fontFamily: 'var(--font-sans)',
               fontSize: '0.875rem',
-              fontWeight: 500,
-              color: '#4A4A46',
+              fontWeight: 600,
+              color: '#FFFFFF',
+              background: '#6B9B78',
+              borderRadius: 100,
+              padding: '8px 20px',
               textDecoration: 'none',
-              transition: 'color 0.2s ease',
+              transition: 'background 0.2s ease, transform 0.2s ease',
             }}
-            onMouseEnter={(e) => ((e.target as HTMLElement).style.color = '#6B9B78')}
-            onMouseLeave={(e) => ((e.target as HTMLElement).style.color = '#4A4A46')}
+            onMouseEnter={(e) => {
+              ;(e.target as HTMLElement).style.background = '#5A8A67'
+              ;(e.target as HTMLElement).style.transform = 'scale(1.03)'
+            }}
+            onMouseLeave={(e) => {
+              ;(e.target as HTMLElement).style.background = '#6B9B78'
+              ;(e.target as HTMLElement).style.transform = 'scale(1)'
+            }}
+          >
+            Let's Talk
+          </a>
+        </div>
+
+        {/* Mobile hamburger toggle */}
+        <button
+          className="nav-toggle"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          style={{
+            display: 'none',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 5,
+            width: 36,
+            height: 36,
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+        >
+          <span
+            style={{
+              display: 'block',
+              width: 20,
+              height: 2,
+              borderRadius: 2,
+              background: '#1C1C18',
+              transition: 'transform 0.25s ease, opacity 0.25s ease',
+              transform: menuOpen ? 'translateY(7px) rotate(45deg)' : 'none',
+            }}
+          />
+          <span
+            style={{
+              display: 'block',
+              width: 20,
+              height: 2,
+              borderRadius: 2,
+              background: '#1C1C18',
+              transition: 'opacity 0.2s ease',
+              opacity: menuOpen ? 0 : 1,
+            }}
+          />
+          <span
+            style={{
+              display: 'block',
+              width: 20,
+              height: 2,
+              borderRadius: 2,
+              background: '#1C1C18',
+              transition: 'transform 0.25s ease, opacity 0.25s ease',
+              transform: menuOpen ? 'translateY(-7px) rotate(-45deg)' : 'none',
+            }}
+          />
+        </button>
+      </nav>
+
+      {/* Mobile dropdown menu */}
+      <div
+        className="mobile-menu"
+        style={{
+          display: menuOpen ? 'flex' : 'none',
+          flexDirection: 'column',
+          position: 'fixed',
+          top: 64,
+          left: 0,
+          right: 0,
+          zIndex: 49,
+          background: 'rgba(250, 250, 246, 0.98)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid #E4E0D8',
+          padding: '12px 24px 24px',
+          gap: 4,
+          boxShadow: '0 12px 24px rgba(0,0,0,0.06)',
+        }}
+      >
+        {navItems.map((item) => (
+          <a
+            key={item}
+            href={`#${item === 'Certs' ? 'certificates' : item.toLowerCase()}`}
+            onClick={() => setMenuOpen(false)}
+            style={{
+              fontFamily: 'var(--font-sans)',
+              fontSize: '1rem',
+              fontWeight: 500,
+              color: '#1C1C18',
+              textDecoration: 'none',
+              padding: '12px 4px',
+              borderBottom: '1px solid #EAE8E3',
+            }}
           >
             {item}
           </a>
         ))}
         <a
           href="#contact"
+          onClick={() => setMenuOpen(false)}
           style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: '0.875rem',
+            fontSize: '0.95rem',
             fontWeight: 600,
             color: '#FFFFFF',
             background: '#6B9B78',
             borderRadius: 100,
-            padding: '8px 20px',
+            padding: '12px 20px',
+            textAlign: 'center',
             textDecoration: 'none',
-            transition: 'background 0.2s ease, transform 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            ;(e.target as HTMLElement).style.background = '#5A8A67'
-            ;(e.target as HTMLElement).style.transform = 'scale(1.03)'
-          }}
-          onMouseLeave={(e) => {
-            ;(e.target as HTMLElement).style.background = '#6B9B78'
-            ;(e.target as HTMLElement).style.transform = 'scale(1)'
+            marginTop: 12,
           }}
         >
           Let's Talk
         </a>
       </div>
-    </nav>
+    </>
   )
 }
 
@@ -850,330 +982,177 @@ export default function App() {
   ]
 
   return (
-    <div style={{ background: '#FAFAF6', minHeight: '100vh', position: 'relative' }}>
+    <div style={{ background: '#FAFAF6', minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
       <ParallaxShapes scrollY={scrollY} />
       <Nav scrollY={scrollY} />
 
-
-{/* ── HERO ──────────────────────────────────────────────────────────── */}
-<section
-  ref={heroRef}
-  className="hero-section"
-  style={{
-    position: 'relative',
-    zIndex: 1,
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '120px 40px 80px',
-    maxWidth: 1100,
-    margin: '0 auto',
-  }}
->
-  <div
-    style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-      gap: 48,
-      alignItems: 'center',
-      width: '100%',
-    }}
-  >
-    {/* Left Column: Copy & Actions */}
-    <div style={{ textAlign: 'left' }}>
-      {/* Role pill */}
-      <div
-        className="animate-fade-in"
+      {/* ── HERO ──────────────────────────────────────────────────────────── */}
+      <section
+        ref={heroRef}
+        className="hero-section"
         style={{
           position: 'relative',
           zIndex: 1,
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          padding: '120px 40px 80px',
-          gap: 8,
-          background: '#FFFFFF',
-          border: '1px solid #E4E0D8',
-          borderRadius: 100,
-          padding: '6px 18px',
-          marginBottom: 24,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+          padding: '150px 40px 90px',
         }}
       >
-        {/* Role pill */}
         <div
-          className="animate-fade-in"
+          className="hero-grid"
           style={{
-            display: 'inline-flex',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: 56,
             alignItems: 'center',
-            gap: 8,
-            background: '#FFFFFF',
-            border: '1px solid #E4E0D8',
-            borderRadius: 100,
-            padding: '6px 18px',
-            marginBottom: 32,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+            width: '100%',
+            maxWidth: 1160,
+            margin: '0 auto',
           }}
         >
-          <span
-            style={{
-              width: 7,
-              height: 7,
-              borderRadius: '50%',
-              background: '#6B9B78',
-              display: 'inline-block',
-              boxShadow: '0 0 0 3px rgba(107,155,120,0.25)',
-            }}
-          />
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.8rem',
-              fontWeight: 500,
-              color: '#6B6860',
-              letterSpacing: '0.04em',
-            }}
-          >
-            GoHighLevel Specialist | CRM & Marketing Automation
-          </span>
-        </div>
+          {/* Left Column: Copy & Actions */}
+          <div style={{ textAlign: 'left' }}>
+            {/* Role pill */}
+            <div
+              className="animate-fade-in"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                background: '#FFFFFF',
+                border: '1px solid #E4E0D8',
+                borderRadius: 100,
+                padding: '6px 18px',
+                marginBottom: 22,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              }}
+            >
+              <span
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  background: '#6B9B78',
+                  display: 'inline-block',
+                  boxShadow: '0 0 0 3px rgba(107,155,120,0.25)',
+                }}
+              />
+              <span
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.8rem',
+                  fontWeight: 500,
+                  color: '#6B6860',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                GoHighLevel Specialist | CRM & Marketing Automation
+              </span>
+            </div>
 
-        {/* Hero headline */}
-        <h1
-          className="animate-fade-up delay-100"
-        <span
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(3rem, 7vw, 5.5rem)',
-            color: '#1C1C18',
-            lineHeight: 1.08,
-            letterSpacing: '-0.02em',
-            maxWidth: 520,
-            marginBottom: 20,
-            width: 7,
-            height: 7,
-            borderRadius: '50%',
-            background: '#6B9B78',
-            display: 'inline-block',
-            boxShadow: '0 0 0 3px rgba(107,155,120,0.25)',
-          }}
-        >
-          Systems that work
-          <br />
-          <span style={{ color: '#6B9B78' }}>while you sleep.</span>
-        </h1>
+            {/* Hero headline */}
+            <h1
+              className="animate-fade-up delay-100"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(2.1rem, 3.6vw, 3.2rem)',
+                color: '#1C1C18',
+                lineHeight: 1.12,
+                letterSpacing: '-0.02em',
+                marginBottom: 18,
+              }}
+            >
+              Systems that work <br />
+              <span style={{ color: '#6B9B78' }}>while you sleep.</span>
+            </h1>
 
-        {/* Sub-text */}
-        <p
-          className="animate-fade-up delay-200"
-        />
-        <span
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '.8rem',
-            fontSize: '0.8rem',
-            fontWeight: 500,
-            color: '#6B6860',
-            maxWidth: 300,
-            lineHeight: 1.7,
-            marginBottom: 48,
-            fontWeight: 300,
-            letterSpacing: '0.04em',
-          }}
-        >
-          Automating the repetitive so your business captures, nurtures, and closes leads — without
-          you lifting a finger.
-        </p>
-          GoHighLevel Specialist | CRM & Marketing Automation
-        </span>
-      </div>
+            {/* Sub-text */}
+            <p
+              className="animate-fade-up delay-200"
+              style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.95rem',
+                color: '#6B6860',
+                maxWidth: 440,
+                lineHeight: 1.7,
+                marginBottom: 32,
+                fontWeight: 300,
+              }}
+            >
+              Automating the repetitive so your business captures, nurtures, and closes leads —
+              without you lifting a finger.
+            </p>
 
-        {/* CTA buttons */}
-        <div
-          className="hero-ctas animate-fade-up delay-300"
-          style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 80 }}
-        >
-          <a
-            href="#work"
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              color: '#FFFFFF',
-              background: '#1C1C18',
-              borderRadius: 100,
-              padding: '14px 28px',
-              textDecoration: 'none',
-              transition: 'background 0.2s ease, transform 0.2s ease',
-              display: 'inline-block',
-            }}
-            onMouseEnter={(e) => {
-              ;(e.currentTarget as HTMLElement).style.background = '#6B9B78'
-              ;(e.currentTarget as HTMLElement).style.transform = 'scale(1.03)'
-            }}
-            onMouseLeave={(e) => {
-              ;(e.currentTarget as HTMLElement).style.background = '#1C1C18'
-              ;(e.currentTarget as HTMLElement).style.transform = 'scale(1)'
-            }}
-          >
-            View My Work
-          </a>
-          <a
-            href="#contact"
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.9rem',
-              fontWeight: 500,
-              color: '#1C1C18',
-              background: 'transparent',
-              border: '1.5px solid #D4CFC8',
-              borderRadius: 100,
-              padding: '14px 28px',
-              textDecoration: 'none',
-              transition: 'border-color 0.2s ease, transform 0.2s ease',
-              display: 'inline-block',
-            }}
-            onMouseEnter={(e) => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = '#6B9B78'
-              ;(e.currentTarget as HTMLElement).style.transform = 'scale(1.03)'
-            }}
-            onMouseLeave={(e) => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = '#D4CFC8'
-              ;(e.currentTarget as HTMLElement).style.transform = 'scale(1)'
-            }}
-          >
-            Get in Touch
-          </a>
-        </div>
-      {/* Hero headline */}
-      <h1
-        className="animate-fade-up delay-100"
-        style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 'clamp(2.5rem, 5vw, 4.2rem)',
-          color: '#1C1C18',
-          lineHeight: 1.1,
-          letterSpacing: '-0.02em',
-          marginBottom: 20,
-        }}
-      >
-        Systems that work <br />
-        <span style={{ color: '#6B9B78' }}>while you sleep.</span>
-      </h1>
+            {/* CTA buttons */}
+            <div
+              className="hero-ctas animate-fade-up delay-300"
+              style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'flex-start' }}
+            >
+              <a
+                href="#work"
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                  color: '#FFFFFF',
+                  background: '#1C1C18',
+                  borderRadius: 100,
+                  padding: '14px 28px',
+                  textDecoration: 'none',
+                  transition: 'background 0.2s ease, transform 0.2s ease',
+                  display: 'inline-block',
+                }}
+                onMouseEnter={(e) => {
+                  ;(e.currentTarget as HTMLElement).style.background = '#6B9B78'
+                  ;(e.currentTarget as HTMLElement).style.transform = 'scale(1.03)'
+                }}
+                onMouseLeave={(e) => {
+                  ;(e.currentTarget as HTMLElement).style.background = '#1C1C18'
+                  ;(e.currentTarget as HTMLElement).style.transform = 'scale(1)'
+                }}
+              >
+                View My Work
+              </a>
+              <a
+                href="#contact"
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.9rem',
+                  fontWeight: 500,
+                  color: '#1C1C18',
+                  background: 'transparent',
+                  border: '1.5px solid #D4CFC8',
+                  borderRadius: 100,
+                  padding: '14px 28px',
+                  textDecoration: 'none',
+                  transition: 'border-color 0.2s ease, transform 0.2s ease',
+                  display: 'inline-block',
+                }}
+                onMouseEnter={(e) => {
+                  ;(e.currentTarget as HTMLElement).style.borderColor = '#6B9B78'
+                  ;(e.currentTarget as HTMLElement).style.transform = 'scale(1.03)'
+                }}
+                onMouseLeave={(e) => {
+                  ;(e.currentTarget as HTMLElement).style.borderColor = '#D4CFC8'
+                  ;(e.currentTarget as HTMLElement).style.transform = 'scale(1)'
+                }}
+              >
+                Get in Touch
+              </a>
+            </div>
+          </div>
 
-        {/* Workflow mockup */}
-        <div className="animate-fade-up delay-400" style={{ display: 'flex', justifyContent: 'center' }}>
-          <WorkflowMockup />
-        </div>
-      {/* Sub-text */}
-      <p
-        className="animate-fade-up delay-200"
-        style={{
-          fontFamily: 'var(--font-sans)',
-          fontSize: '0.95rem',
-          color: '#6B6860',
-          maxWidth: 460,
-          lineHeight: 1.7,
-          marginBottom: 36,
-          fontWeight: 300,
-        }}
-      >
-        Automating the repetitive so your business captures, nurtures, and closes leads — without you lifting a finger.
-      </p>
-
-        {/* Scroll cue */}
-        <div
-          className="animate-fade-in delay-600"
-      {/* CTA buttons */}
-      <div
-        className="hero-ctas animate-fade-up delay-300"
-        style={{
-          display: 'flex',
-          gap: 14,
-          flexWrap: 'wrap',
-          justifyContent: 'flex-start',
-        }}
-      >
-        <a
-          href="#work"
-          style={{
-            position: 'absolute',
-            bottom: 36,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 6,
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.9rem',
-            fontWeight: 600,
-            color: '#FFFFFF',
-            background: '#1C1C18',
-            borderRadius: 100,
-            padding: '14px 28px',
-            textDecoration: 'none',
-          }}
-        >
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.7rem',
-              color: '#B8B4AC',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-            }}
-          >
-            Scroll
-          </span>
+          {/* Right Column: Workflow Mockup */}
           <div
+            className="animate-fade-up delay-200"
             style={{
-              width: 1.5,
-              height: 32,
-              background: 'linear-gradient(to bottom, #B8B4AC, transparent)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
-          />
+          >
+            <WorkflowMockup />
+          </div>
         </div>
       </section>
-          View Work
-        </a>
-        <a
-          href="#contact"
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.9rem',
-            fontWeight: 500,
-            color: '#1C1C18',
-            background: '#FFFFFF',
-            border: '1px solid #E4E0D8',
-            borderRadius: 100,
-            padding: '14px 28px',
-            textDecoration: 'none',
-          }}
-        >
-          Get in Touch
-        </a>
-      </div>
-    </div>
-
-    {/* Right Column: Workflow Mockup */}
-    <div
-      className="animate-fade-up delay-200"
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <WorkflowMockup />
-    </div>
-  </div>
-</section>
       
 
       {/* ── CONCEPT SNAPSHOTS ─────────────────────────────────────────────── */}
@@ -1184,10 +1163,9 @@ export default function App() {
           position: 'relative',
           zIndex: 1,
           padding: '100px 40px',
-          maxWidth: 1160,
-          margin: '0 auto',
         }}
       >
+        <div style={{ maxWidth: 1160, margin: '0 auto' }}>
         {/* Section label */}
         <div style={{ marginBottom: 56, maxWidth: 640 }}>
           <span
@@ -1244,6 +1222,7 @@ export default function App() {
             <ConceptCard key={c.title} {...c} />
           ))}
         </div>
+        </div>
       </section>
 
       {/* ── BACKGROUND & SKILLS ───────────────────────────────────────────── */}
@@ -1264,7 +1243,7 @@ export default function App() {
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: 80,
-            alignItems: 'start',
+            alignItems: 'end',
           }}
           className="about-grid"
         >
@@ -1300,6 +1279,7 @@ export default function App() {
 
             {/* Profile mini-card */}
             <div
+              className="profile-card"
               style={{
                 display: 'flex',
                 alignItems: 'flex-start',
@@ -1400,10 +1380,10 @@ Navigating complex business workflows actually requires a lot of the same calm, 
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, 1fr)',
                 background: '#FFFFFF',
-                borderRadius: 20,
+                borderRadius: 16,
                 border: '1px solid #E4E0D8',
                 overflow: 'hidden',
-                marginBottom: 28,
+                marginBottom: 20,
                 boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
               }}
             >
@@ -1427,26 +1407,26 @@ Navigating complex business workflows actually requires a lot of the same calm, 
             <div
               style={{
                 background: '#FFFFFF',
-                borderRadius: 20,
+                borderRadius: 16,
                 border: '1px solid #E4E0D8',
-                padding: '24px',
+                padding: '18px',
                 boxShadow: '0 2px 16px rgba(0,0,0,0.04)',
               }}
             >
               <p
                 style={{
                   fontFamily: 'var(--font-sans)',
-                  fontSize: '0.75rem',
+                  fontSize: '0.72rem',
                   fontWeight: 600,
                   color: '#9B9890',
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-                  marginBottom: 16,
+                  marginBottom: 12,
                 }}
               >
                 Skills &amp; Tools
               </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {skills.map((s) => (
                   <SkillChip key={s} label={s} />
                 ))}
@@ -1464,10 +1444,9 @@ Navigating complex business workflows actually requires a lot of the same calm, 
     position: 'relative',
     zIndex: 1,
     padding: '100px 40px',
-    maxWidth: 1100,
-    margin: '0 auto',
   }}
 >
+  <div style={{ maxWidth: 1160, margin: '0 auto' }}>
   <div style={{ maxWidth: '720px', margin: '0' }}>
     <h2
       style={{
@@ -1540,6 +1519,7 @@ Navigating complex business workflows actually requires a lot of the same calm, 
           href={cert.url}
           target="_blank"
           rel="noopener noreferrer"
+          className="cert-row"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -1556,6 +1536,8 @@ Navigating complex business workflows actually requires a lot of the same calm, 
               fontSize: '0.95rem',
               color: '#1C1C18',
               fontWeight: 400,
+              flex: 1,
+              minWidth: 0,
             }}
           >
             {cert.title}
@@ -1587,6 +1569,7 @@ Navigating complex business workflows actually requires a lot of the same calm, 
       ))}
     </div>
   </div>
+  </div>
 </section>
 
 
@@ -1598,11 +1581,9 @@ Navigating complex business workflows actually requires a lot of the same calm, 
           position: 'relative',
           zIndex: 1,
           padding: '100px 40px',
-          maxWidth: 1160,
-          margin: '0 auto',
         }}
       >
-        <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 80, alignItems: 'start' }}>
+        <div className="contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 80, alignItems: 'end', maxWidth: 1160, margin: '0 auto' }}>
           {/* Left: copy */}
           <div>
             <span
@@ -1805,13 +1786,17 @@ Navigating complex business workflows actually requires a lot of the same calm, 
         @media (max-width: 768px) {
           /* Nav */
           .nav-links { display: none !important; }
-          .nav-cta { display: none !important; }
+          .nav-toggle { display: flex !important; }
           nav { padding: 0 20px !important; }
 
           /* Hero */
           .hero-section {
             padding: 100px 24px 60px !important;
             min-height: auto !important;
+          }
+          .hero-grid {
+            grid-template-columns: 1fr !important;
+            gap: 40px !important;
           }
           .hero-ctas {
             flex-direction: column !important;
@@ -1874,6 +1859,11 @@ Navigating complex business workflows actually requires a lot of the same calm, 
           .profile-card {
             flex-direction: column !important;
             align-items: flex-start !important;
+          }
+          .cert-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 6px !important;
           }
         }
       `}</style>
