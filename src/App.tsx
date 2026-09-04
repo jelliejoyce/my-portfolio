@@ -854,192 +854,161 @@ export default function App() {
       <ParallaxShapes scrollY={scrollY} />
       <Nav scrollY={scrollY} />
 
-      {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <section
-        ref={heroRef}
-        className="hero-section"
+{/* ── HERO ──────────────────────────────────────────────────────────── */}
+<section
+  ref={heroRef}
+  className="hero-section"
+  style={{
+    position: 'relative',
+    zIndex: 1,
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '120px 40px 80px',
+    maxWidth: 1100,
+    margin: '0 auto',
+  }}
+>
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+      gap: 48,
+      alignItems: 'center',
+      width: '100%',
+    }}
+  >
+    {/* Left Column: Copy & Actions */}
+    <div style={{ textAlign: 'left' }}>
+      {/* Role pill */}
+      <div
+        className="animate-fade-in"
         style={{
-          position: 'relative',
-          zIndex: 1,
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
+          display: 'inline-flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          padding: '120px 40px 80px',
+          gap: 8,
+          background: '#FFFFFF',
+          border: '1px solid #E4E0D8',
+          borderRadius: 100,
+          padding: '6px 18px',
+          marginBottom: 24,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
         }}
       >
-        {/* Role pill */}
-        <div
-          className="animate-fade-in"
+        <span
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
+            width: 7,
+            height: 7,
+            borderRadius: '50%',
+            background: '#6B9B78',
+            display: 'inline-block',
+            boxShadow: '0 0 0 3px rgba(107,155,120,0.25)',
+          }}
+        />
+        <span
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: '0.8rem',
+            fontWeight: 500,
+            color: '#6B6860',
+            letterSpacing: '0.04em',
+          }}
+        >
+          GoHighLevel Specialist | CRM & Marketing Automation
+        </span>
+      </div>
+
+      {/* Hero headline */}
+      <h1
+        className="animate-fade-up delay-100"
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 'clamp(2.5rem, 5vw, 4.2rem)',
+          color: '#1C1C18',
+          lineHeight: 1.1,
+          letterSpacing: '-0.02em',
+          marginBottom: 20,
+        }}
+      >
+        Systems that work <br />
+        <span style={{ color: '#6B9B78' }}>while you sleep.</span>
+      </h1>
+
+      {/* Sub-text */}
+      <p
+        className="animate-fade-up delay-200"
+        style={{
+          fontFamily: 'var(--font-sans)',
+          fontSize: '0.95rem',
+          color: '#6B6860',
+          maxWidth: 460,
+          lineHeight: 1.7,
+          marginBottom: 36,
+          fontWeight: 300,
+        }}
+      >
+        Automating the repetitive so your business captures, nurtures, and closes leads — without you lifting a finger.
+      </p>
+
+      {/* CTA buttons */}
+      <div
+        className="hero-ctas animate-fade-up delay-300"
+        style={{
+          display: 'flex',
+          gap: 14,
+          flexWrap: 'wrap',
+          justifyContent: 'flex-start',
+        }}
+      >
+        <a
+          href="#work"
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: '0.9rem',
+            fontWeight: 600,
+            color: '#FFFFFF',
+            background: '#1C1C18',
+            borderRadius: 100,
+            padding: '14px 28px',
+            textDecoration: 'none',
+          }}
+        >
+          View Work
+        </a>
+        <a
+          href="#contact"
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: '0.9rem',
+            fontWeight: 500,
+            color: '#1C1C18',
             background: '#FFFFFF',
             border: '1px solid #E4E0D8',
             borderRadius: 100,
-            padding: '6px 18px',
-            marginBottom: 32,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+            padding: '14px 28px',
+            textDecoration: 'none',
           }}
         >
-          <span
-            style={{
-              width: 7,
-              height: 7,
-              borderRadius: '50%',
-              background: '#6B9B78',
-              display: 'inline-block',
-              boxShadow: '0 0 0 3px rgba(107,155,120,0.25)',
-            }}
-          />
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.8rem',
-              fontWeight: 500,
-              color: '#6B6860',
-              letterSpacing: '0.04em',
-            }}
-          >
-            GoHighLevel Specialist | CRM & Marketing Automation
-          </span>
-        </div>
+          Get in Touch
+        </a>
+      </div>
+    </div>
 
-        {/* Hero headline */}
-        <h1
-          className="animate-fade-up delay-100"
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(3rem, 7vw, 5.5rem)',
-            color: '#1C1C18',
-            lineHeight: 1.08,
-            letterSpacing: '-0.02em',
-            maxWidth: 520,
-            marginBottom: 20,
-          }}
-        >
-          Systems that work
-          <br />
-          <span style={{ color: '#6B9B78' }}>while you sleep.</span>
-        </h1>
-
-        {/* Sub-text */}
-        <p
-          className="animate-fade-up delay-200"
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '.8rem',
-            color: '#6B6860',
-            maxWidth: 300,
-            lineHeight: 1.7,
-            marginBottom: 48,
-            fontWeight: 300,
-          }}
-        >
-          Automating the repetitive so your business captures, nurtures, and closes leads — without
-          you lifting a finger.
-        </p>
-
-        {/* CTA buttons */}
-        <div
-          className="hero-ctas animate-fade-up delay-300"
-          style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 80 }}
-        >
-          <a
-            href="#work"
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              color: '#FFFFFF',
-              background: '#1C1C18',
-              borderRadius: 100,
-              padding: '14px 28px',
-              textDecoration: 'none',
-              transition: 'background 0.2s ease, transform 0.2s ease',
-              display: 'inline-block',
-            }}
-            onMouseEnter={(e) => {
-              ;(e.currentTarget as HTMLElement).style.background = '#6B9B78'
-              ;(e.currentTarget as HTMLElement).style.transform = 'scale(1.03)'
-            }}
-            onMouseLeave={(e) => {
-              ;(e.currentTarget as HTMLElement).style.background = '#1C1C18'
-              ;(e.currentTarget as HTMLElement).style.transform = 'scale(1)'
-            }}
-          >
-            View My Work
-          </a>
-          <a
-            href="#contact"
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.9rem',
-              fontWeight: 500,
-              color: '#1C1C18',
-              background: 'transparent',
-              border: '1.5px solid #D4CFC8',
-              borderRadius: 100,
-              padding: '14px 28px',
-              textDecoration: 'none',
-              transition: 'border-color 0.2s ease, transform 0.2s ease',
-              display: 'inline-block',
-            }}
-            onMouseEnter={(e) => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = '#6B9B78'
-              ;(e.currentTarget as HTMLElement).style.transform = 'scale(1.03)'
-            }}
-            onMouseLeave={(e) => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = '#D4CFC8'
-              ;(e.currentTarget as HTMLElement).style.transform = 'scale(1)'
-            }}
-          >
-            Get in Touch
-          </a>
-        </div>
-
-        {/* Workflow mockup */}
-        <div className="animate-fade-up delay-400" style={{ display: 'flex', justifyContent: 'center' }}>
-          <WorkflowMockup />
-        </div>
-
-        {/* Scroll cue */}
-        <div
-          className="animate-fade-in delay-600"
-          style={{
-            position: 'absolute',
-            bottom: 36,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.7rem',
-              color: '#B8B4AC',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-            }}
-          >
-            Scroll
-          </span>
-          <div
-            style={{
-              width: 1.5,
-              height: 32,
-              background: 'linear-gradient(to bottom, #B8B4AC, transparent)',
-            }}
-          />
-        </div>
-      </section>
+    {/* Right Column: Workflow Mockup */}
+    <div
+      className="animate-fade-up delay-200"
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <WorkflowMockup />
+    </div>
+  </div>
+</section>
+      
 
       {/* ── CONCEPT SNAPSHOTS ─────────────────────────────────────────────── */}
       <section
