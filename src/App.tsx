@@ -2216,11 +2216,11 @@ export default function App() {
 
       {/* Global + responsive styles */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
         :root {
-          --font-display: 'Cormorant Garamond', Georgia, serif;
-          --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          --font-display: 'Fraunces', Georgia, serif;
+          --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
         .custom-cursor-active,
