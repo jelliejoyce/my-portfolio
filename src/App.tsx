@@ -30,10 +30,12 @@ function useFinePointer() {
 
 // ─── Magnetic ─────────────────────────────────────────────────────────────────
 // Wraps a link/button and pulls it a few px toward the cursor when nearby.
+// Kept deliberately subtle: a tight activation radius so it only reacts once
+// the cursor is essentially over the element, not while passing nearby.
 function Magnetic({
   children,
-  strength = 0.3,
-  max = 6,
+  strength = 0.15,
+  max = 4,
 }: {
   children: React.ReactNode
   strength?: number
@@ -49,7 +51,7 @@ function Magnetic({
       const rect = el.getBoundingClientRect()
       const relX = e.clientX - (rect.left + rect.width / 2)
       const relY = e.clientY - (rect.top + rect.height / 2)
-      const radius = Math.max(rect.width, rect.height) * 1.6 + 24
+      const radius = Math.max(rect.width, rect.height) * 1.05 + 10
       const dist = Math.hypot(relX, relY)
       if (dist < radius) {
         const pull = 1 - dist / radius
@@ -166,18 +168,115 @@ function CustomCursor() {
   )
 }
 
+// ─── MagneticDotGrid ────────────────────────────────────────────────────────
+// Canvas dot field: every dot rests at a fixed grid position and eases toward
+// a small offset pulled magnetically toward the cursor when it's nearby, then
+// relaxes back. Mounted only for fine pointers — steady/static fallback for
+// touch and reduced-motion lives in ReactiveBackground.
+function MagneticDotGrid() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const spacing = 30
+    const pullRadius = 90
+    const pullStrength = 8
+    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    const mouse = { x: -9999, y: -9999 }
+    let dots: { ox: number; oy: number; x: number; y: number }[] = []
+    let width = 0
+    let height = 0
+
+    const buildGrid = () => {
+      width = window.innerWidth
+      height = window.innerHeight
+      canvas.width = width * dpr
+      canvas.height = height * dpr
+      canvas.style.width = `${width}px`
+      canvas.style.height = `${height}px`
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      dots = []
+      for (let y = spacing / 2; y < height; y += spacing) {
+        for (let x = spacing / 2; x < width; x += spacing) {
+          dots.push({ ox: x, oy: y, x, y })
+        }
+      }
+    }
+    buildGrid()
+
+    const onMove = (e: MouseEvent) => {
+      mouse.x = e.clientX
+      mouse.y = e.clientY
+    }
+    const onLeave = () => {
+      mouse.x = -9999
+      mouse.y = -9999
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseleave', onLeave)
+    window.addEventListener('resize', buildGrid)
+
+    let raf = 0
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height)
+      ctx.fillStyle = 'rgba(30,30,28,0.16)'
+      for (let i = 0; i < dots.length; i++) {
+        const d = dots[i]
+        const dx = d.ox - mouse.x
+        const dy = d.oy - mouse.y
+        const distSq = dx * dx + dy * dy
+        if (distSq < pullRadius * pullRadius) {
+          const dist = Math.sqrt(distSq) || 1
+          const force = (1 - dist / pullRadius) * pullStrength
+          const tx = d.ox + (dx / dist) * force
+          const ty = d.oy + (dy / dist) * force
+          d.x += (tx - d.x) * 0.18
+          d.y += (ty - d.y) * 0.18
+        } else {
+          d.x += (d.ox - d.x) * 0.12
+          d.y += (d.oy - d.y) * 0.12
+        }
+        ctx.beginPath()
+        ctx.arc(d.x, d.y, 1.1, 0, Math.PI * 2)
+        ctx.fill()
+      }
+      raf = requestAnimationFrame(draw)
+    }
+    raf = requestAnimationFrame(draw)
+
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseleave', onLeave)
+      window.removeEventListener('resize', buildGrid)
+      cancelAnimationFrame(raf)
+    }
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+    />
+  )
+}
+
 // ─── ReactiveBackground ───────────────────────────────────────────────────────
-// Replaces the old auto-looping ParallaxShapes. Every motion here is driven
-// by scroll position (user input) or cursor position (gated to fine pointers).
-function ReactiveBackground({ scrollY }: { scrollY: number }) {
+// Fixed to the viewport and steady through scroll — nothing here is driven by
+// scroll position any more. Motion is either cursor-reactive (blobs, dot grid,
+// spotlight — gated to fine pointers) or a slow self-contained loop (the
+// small square accent).
+function ReactiveBackground() {
   const fine = useFinePointer()
   const spotRef = useRef<HTMLDivElement>(null)
   const sageRef = useRef<HTMLDivElement>(null)
   const lavenderRef = useRef<HTMLDivElement>(null)
   const target = useRef({ x: 0, y: 0 })
   const current = useRef({ x: 0, y: 0 })
-  const scrollRef = useRef(scrollY)
-  scrollRef.current = scrollY
 
   useEffect(() => {
     if (!fine) return
@@ -198,10 +297,10 @@ function ReactiveBackground({ scrollY }: { scrollY: number }) {
       current.current.x += (target.current.x - current.current.x) * 0.05
       current.current.y += (target.current.y - current.current.y) * 0.05
       if (sageRef.current) {
-        sageRef.current.style.transform = `translate(${current.current.x * 18}px, ${scrollRef.current * 0.08 + current.current.y * 14}px)`
+        sageRef.current.style.transform = `translate(${current.current.x * 18}px, ${current.current.y * 14}px)`
       }
       if (lavenderRef.current) {
-        lavenderRef.current.style.transform = `translate(${current.current.x * -14}px, ${scrollRef.current * 0.05 + current.current.y * -10}px)`
+        lavenderRef.current.style.transform = `translate(${current.current.x * -14}px, ${current.current.y * -10}px)`
       }
       raf = requestAnimationFrame(loop)
     }
@@ -213,25 +312,22 @@ function ReactiveBackground({ scrollY }: { scrollY: number }) {
     }
   }, [fine])
 
-  // Scroll-only fallback for touch / reduced-motion
-  useEffect(() => {
-    if (fine) return
-    if (sageRef.current) sageRef.current.style.transform = `translateY(${scrollY * 0.08}px)`
-    if (lavenderRef.current) lavenderRef.current.style.transform = `translateY(${scrollY * 0.05}px)`
-  }, [scrollY, fine])
-
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden" style={{ zIndex: 0 }}>
-      {/* base dot grid */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: 'radial-gradient(circle, #1E1E1C 1px, transparent 1px)',
-          backgroundSize: '30px 30px',
-          opacity: 0.05,
-        }}
-      />
+      {/* base dot grid — magnetic canvas on fine pointers, static pattern otherwise */}
+      {fine ? (
+        <MagneticDotGrid />
+      ) : (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: 'radial-gradient(circle, #1E1E1C 1px, transparent 1px)',
+            backgroundSize: '30px 30px',
+            opacity: 0.05,
+          }}
+        />
+      )}
       {/* cursor spotlight, brightens/tints the grid near the pointer */}
       {fine && (
         <div
@@ -273,8 +369,9 @@ function ReactiveBackground({ scrollY }: { scrollY: number }) {
           opacity: 0.28,
         }}
       />
-      {/* static geometric accents, scroll-drift only */}
+      {/* looping square accent — slow, self-contained, steady position */}
       <div
+        className="bg-loop-square"
         style={{
           position: 'absolute',
           width: 80,
@@ -283,10 +380,10 @@ function ReactiveBackground({ scrollY }: { scrollY: number }) {
           borderRadius: 12,
           top: 200,
           right: '25%',
-          opacity: 0.08,
-          transform: `translateY(${scrollY * 0.1}px) rotate(28deg)`,
+          opacity: 0.1,
         }}
       />
+      {/* static geometric accents — steady, no scroll motion */}
       <div
         style={{
           position: 'absolute',
@@ -297,7 +394,6 @@ function ReactiveBackground({ scrollY }: { scrollY: number }) {
           top: 460,
           right: '8%',
           opacity: 0.15,
-          transform: `translateY(${scrollY * 0.09}px)`,
         }}
       />
       <svg
@@ -305,10 +401,9 @@ function ReactiveBackground({ scrollY }: { scrollY: number }) {
           position: 'absolute',
           width: 100,
           height: 100,
-          top: 920,
+          top: 620,
           left: '12%',
           opacity: 0.09,
-          transform: `translateY(${scrollY * 0.06}px)`,
         }}
         viewBox="0 0 100 100"
         fill="none"
@@ -322,42 +417,115 @@ function ReactiveBackground({ scrollY }: { scrollY: number }) {
           height: 56,
           border: '2px solid #DCCFEF',
           borderRadius: '50%',
-          top: 1220,
+          top: 740,
           right: '30%',
           opacity: 0.12,
-          transform: `translateY(${scrollY * 0.11}px)`,
         }}
       />
     </div>
   )
 }
 
-// ─── InteractiveName ──────────────────────────────────────────────────────────
-// Letter-by-letter hover response — each character lifts and shifts toward
-// the accent colors when the name is hovered. Purely hover-triggered, resets
-// on mouse-leave, no auto-loop.
-function InteractiveName({ text }: { text: string }) {
+// ─── NameImageReveal ────────────────────────────────────────────────────────
+// Image-reveal hover: the name rests muted, snaps to full-contrast ink on
+// hover, and a small tilted photo card fades/scales into view and tracks the
+// cursor with eased physics (position + a velocity-based tilt), then fades
+// back out on mouse-leave. Fine-pointer only — touch gets a plain tap state.
+function NameImageReveal({ text, imageSrc }: { text: string; imageSrc?: string }) {
+  const fine = useFinePointer()
+  const wrapRef = useRef<HTMLSpanElement>(null)
+  const followRef = useRef<HTMLDivElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
+  const target = useRef({ x: 0, y: 0 })
+  const current = useRef({ x: 0, y: 0 })
+  const prevX = useRef(0)
+  const tilt = useRef(-4)
   const [hovered, setHovered] = useState(false)
-  const letters = text.split('')
+
+  useEffect(() => {
+    if (!fine) return
+    const el = wrapRef.current
+    if (!el) return
+
+    const onMove = (e: MouseEvent) => {
+      const rect = el.getBoundingClientRect()
+      target.current = { x: e.clientX - rect.left + 24, y: e.clientY - rect.top }
+    }
+    const onEnter = () => setHovered(true)
+    const onLeave = () => setHovered(false)
+    el.addEventListener('mousemove', onMove)
+    el.addEventListener('mouseenter', onEnter)
+    el.addEventListener('mouseleave', onLeave)
+
+    let raf = 0
+    const loop = () => {
+      current.current.x += (target.current.x - current.current.x) * 0.16
+      current.current.y += (target.current.y - current.current.y) * 0.16
+      const dx = current.current.x - prevX.current
+      prevX.current = current.current.x
+      const velocityTilt = Math.max(-9, Math.min(9, dx * 1.4))
+      tilt.current += (-4 + velocityTilt - tilt.current) * 0.15
+
+      if (followRef.current) {
+        followRef.current.style.transform = `translate(${current.current.x}px, ${current.current.y}px)`
+      }
+      if (cardRef.current) {
+        cardRef.current.style.transform = `rotate(${tilt.current}deg)`
+      }
+      raf = requestAnimationFrame(loop)
+    }
+    raf = requestAnimationFrame(loop)
+
+    return () => {
+      el.removeEventListener('mousemove', onMove)
+      el.removeEventListener('mouseenter', onEnter)
+      el.removeEventListener('mouseleave', onLeave)
+      cancelAnimationFrame(raf)
+    }
+  }, [fine])
+
   return (
     <span
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{ display: 'inline-block', cursor: 'default' }}
+      ref={wrapRef}
+      style={{ position: 'relative', display: 'inline-block', cursor: 'default' }}
+      onTouchStart={() => setHovered(true)}
+      onTouchEnd={() => setHovered(false)}
     >
-      {letters.map((ch, i) => (
-        <span
-          key={i}
+      <span
+        style={{
+          color: hovered ? '#1E1E1C' : 'rgba(30,30,28,0.32)',
+          transition: 'color 0.35s ease',
+        }}
+      >
+        {text}
+      </span>
+
+      {fine && (
+        <div
+          ref={followRef}
+          aria-hidden
           style={{
-            display: 'inline-block',
-            transform: hovered ? `translateY(-${4 + (i % 3) * 3}px)` : 'translateY(0)',
-            color: hovered ? (i % 2 === 0 ? '#7FB08F' : '#9678C9') : '#1E1E1C',
-            transition: `transform 0.4s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.025}s, color 0.35s ease ${i * 0.025}s`,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            pointerEvents: 'none',
+            zIndex: 5,
           }}
         >
-          {ch === ' ' ? '\u00A0' : ch}
-        </span>
-      ))}
+          <div
+            className={`reveal-image-enter${hovered ? ' is-active' : ''}`}
+            style={{ transform: 'translate(0, -115%)' }}
+          >
+            <div
+              ref={cardRef}
+              className="reveal-image-card"
+              style={imageSrc ? { backgroundImage: `url(${imageSrc})` } : undefined}
+            >
+              {!imageSrc && <span className="reveal-image-placeholder">JJ</span>}
+            </div>
+          </div>
+        </div>
+      )}
     </span>
   )
 }
@@ -825,7 +993,7 @@ function Nav() {
           <div className="nav-links" style={{ display: 'flex', alignItems: 'center', gap: 26 }}>
             <div ref={wrapRef} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 26 }}>
               {navItems.map((item) => (
-                <Magnetic key={item.key} strength={0.3} max={5}>
+                <Magnetic key={item.key} strength={0.14} max={3}>
                   <a
                     ref={(el) => {
                       linkRefs.current[item.key] = el
@@ -861,7 +1029,7 @@ function Nav() {
               )}
             </div>
 
-            <Magnetic strength={0.25} max={5}>
+            <Magnetic strength={0.14} max={3}>
               <a
                 href="#contact"
                 style={{
@@ -1237,12 +1405,23 @@ function ContactForm() {
 // APP
 // ═══════════════════════════════════════════════════════════════════════════
 export default function App() {
-  const [scrollY, setScrollY] = useState(0)
-
+  // One-time scroll-reveal for section transitions (see .reveal-section CSS below).
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY)
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    const targets = document.querySelectorAll<HTMLElement>('.reveal-section')
+    if (!targets.length) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.2, rootMargin: '0px 0px -100px 0px' }
+    )
+    targets.forEach((t) => observer.observe(t))
+    return () => observer.disconnect()
   }, [])
 
   const projects: Omit<ProjectCardProps, 'index'>[] = [
@@ -1300,7 +1479,7 @@ export default function App() {
 
   return (
     <div style={{ background: '#FFFFFF', minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
-      <ReactiveBackground scrollY={scrollY} />
+      <ReactiveBackground />
       <CustomCursor />
       <Nav />
 
@@ -1364,7 +1543,7 @@ export default function App() {
                   color: '#1E1E1C',
                 }}
               >
-                <InteractiveName text="Jellie Joyce" />
+                <NameImageReveal text="JELLIE JOYCE" />
               </span>
             </h1>
 
@@ -1441,7 +1620,7 @@ export default function App() {
               className="hero-ctas animate-fade-up delay-300"
               style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 26 }}
             >
-              <Magnetic strength={0.2} max={5}>
+              <Magnetic strength={0.12} max={3}>
                 <a
                   href="/resume.pdf"
                   style={{
@@ -1466,7 +1645,7 @@ export default function App() {
                   Download Resume ↓
                 </a>
               </Magnetic>
-              <Magnetic strength={0.2} max={5}>
+              <Magnetic strength={0.12} max={3}>
                 <a
                   href="#work"
                   style={{
@@ -1530,7 +1709,7 @@ export default function App() {
       {/* ── PROJECTS (horizontal track) ─────────────────────────────────── */}
       <section
         id="work"
-        className="concepts-section"
+        className="concepts-section reveal-section"
         style={{
           position: 'relative',
           zIndex: 1,
@@ -1588,7 +1767,7 @@ export default function App() {
       {/* ── ABOUT / SKILLS ───────────────────────────────────────────────── */}
       <section
         id="about"
-        className="about-section"
+        className="about-section reveal-section"
         style={{
           position: 'relative',
           zIndex: 1,
@@ -1717,6 +1896,7 @@ export default function App() {
       {/* ── CERTIFICATES ─────────────────────────────────────────────────── */}
       <section
         id="certificates"
+        className="reveal-section"
         style={{
           position: 'relative',
           zIndex: 1,
@@ -1866,7 +2046,7 @@ export default function App() {
       {/* ── CONTACT ───────────────────────────────────────────────────────── */}
       <section
         id="contact"
-        className="contact-section"
+        className="contact-section reveal-section"
         style={{
           position: 'relative',
           zIndex: 1,
@@ -1986,7 +2166,7 @@ export default function App() {
                   href: 'https://instagram.com/jelejoys',
                 },
               ].map((link) => (
-                <Magnetic key={link.label} strength={0.15} max={4}>
+                <Magnetic key={link.label} strength={0.1} max={3}>
                   <a
                     href={link.href}
                     target={link.href.startsWith('mailto') ? undefined : '_blank'}
@@ -2081,6 +2261,13 @@ export default function App() {
 
       {/* Global + responsive styles */}
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+        :root {
+          --font-display: 'Abril Fatface', Georgia, serif;
+          --font-sans: 'Montserrat', -apple-system, sans-serif;
+        }
+
         .custom-cursor-active,
         .custom-cursor-active a,
         .custom-cursor-active button {
@@ -2095,10 +2282,81 @@ export default function App() {
           display: none;
         }
 
+        /* ── Name image-reveal hover card ── */
+        .reveal-image-enter {
+          opacity: 0;
+          transform: translate(0, -115%) scale(0.95);
+          transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-image-enter.is-active {
+          opacity: 1;
+          transform: translate(0, -115%) scale(1);
+        }
+        .reveal-image-card {
+          width: 168px;
+          height: 208px;
+          border-radius: 16px;
+          overflow: hidden;
+          background-size: cover;
+          background-position: center;
+          background-color: #F8FAF8;
+          border: 1px solid #EAEAE6;
+          box-shadow: 0 20px 44px rgba(30, 30, 28, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .reveal-image-placeholder {
+          font-family: 'Abril Fatface', Georgia, serif;
+          font-size: 2.4rem;
+          color: #9678C9;
+          opacity: 0.4;
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .animate-fade-up, .animate-fade-in {
             animation: none !important;
           }
+          .bg-loop-square {
+            animation: none !important;
+          }
+          .reveal-section {
+            opacity: 1 !important;
+            transform: none !important;
+            filter: none !important;
+            transition: none !important;
+          }
+        }
+
+        /* ── Background: looping square accent ── */
+        @keyframes bgSquareFloat {
+          0%   { transform: translate(0, 0) rotate(28deg); }
+          25%  { transform: translate(7px, -9px) rotate(33deg); }
+          50%  { transform: translate(-5px, 6px) rotate(23deg); }
+          75%  { transform: translate(5px, 5px) rotate(30deg); }
+          100% { transform: translate(0, 0) rotate(28deg); }
+        }
+        .bg-loop-square {
+          animation: bgSquareFloat 9s ease-in-out infinite;
+        }
+
+        /* ── Section-to-section reveal: one-time slide/fade the first time a
+           section scrolls into view (see IntersectionObserver in App). Kept
+           minimal — a single upward slide with a soft focus-in — but sized
+           to be clearly noticeable as you move between sections. ── */
+        .reveal-section {
+          opacity: 0;
+          transform: translateY(72px);
+          filter: blur(6px);
+          transition: opacity 1.1s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 1.1s cubic-bezier(0.16, 1, 0.3, 1),
+            filter 1.1s ease;
+        }
+        .reveal-section.in-view {
+          opacity: 1;
+          transform: translateY(0);
+          filter: blur(0);
         }
 
         /* ── Tablet (\u22641024px) ── */
