@@ -1322,134 +1322,126 @@ Navigating complex business workflows actually requires a lot of the same calm, 
       </section>
 
 
-          {/* ── CERTIFICATES ─────────────────────────────────────────────────── */}
-      <section
-        id="certificates"
-        className="certs-section"
+{/* Credentials Section */}
+<div style={{ maxWidth: '720px', margin: '0' }}>
+  <h2
+    style={{
+      fontFamily: 'var(--font-display)',
+      fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)',
+      color: '#1C1C18',
+      lineHeight: 1.15,
+      letterSpacing: '-0.015em',
+      marginBottom: 8,
+    }}
+  >
+    <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Credentials</span>
+  </h2>
+  
+  <p
+    style={{
+      fontFamily: 'var(--font-sans)',
+      fontSize: '0.9rem',
+      color: '#6B6860',
+      lineHeight: 1.6,
+      fontWeight: 300,
+      marginBottom: 32,
+    }}
+  >
+    Verified certifications & professional training
+  </p>
+
+  {/* Minimalist List */}
+  <div style={{ display: 'flex', flexDirection: 'column' }}>
+    {[
+      {
+        title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
+        issuer: 'Google',
+        date: '2026',
+        url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414443?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
+      },
+      {
+        title: 'AI Fluency Framework & Foundations',
+        issuer: 'Anthropic',
+        date: '2026',
+        url: 'https://verify.skilljar.com/c/2drrus4jxbrv',
+      },
+      {
+        title: 'AI Capabilities and Limitations',
+        issuer: 'Anthropic',
+        date: '2026',
+        url: 'https://verify.skilljar.com/c/uhroqca7r38j',
+      },
+      {
+        title: 'Introduction to Responsible AI',
+        issuer: 'Google',
+        date: '2026',
+        url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414962?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
+      },
+      {
+        title: 'Claude 101',
+        issuer: 'Anthropic',
+        date: '2026',
+        url: 'https://verify.skilljar.com/c/6nkq7vzv5y7g',
+      },
+      {
+        title: 'Introduction to Claude Cowork',
+        issuer: 'Anthropic',
+        date: '2026',
+        url: 'https://verify.skilljar.com/c/uav39s8hemj8',
+      },
+    ].map((cert, index) => (
+      <a
+        key={index}
+        href={cert.url}
+        target="_blank"
+        rel="noopener noreferrer"
         style={{
-          position: 'relative',
-          zIndex: 1,
-          padding: '100px 40px',
-          maxWidth: 1160,
-          margin: '0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '16px 0',
+          borderBottom: '1px solid #EAE8E3',
+          textDecoration: 'none',
+          gap: '16px',
         }}
       >
-        {/* Section header */}
-        <div style={{ marginBottom: 56, maxWidth: 600 }}>
+        <span
+          style={{
+            fontFamily: 'var(--font-sans)',
+            fontSize: '0.95rem',
+            color: '#1C1C18',
+            fontWeight: 400,
+          }}
+        >
+          {cert.title}
+        </span>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', shrink: 0 }}>
           <span
             style={{
               fontFamily: 'var(--font-sans)',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              color: '#6B9B78',
-              letterSpacing: '0.12em',
+              fontSize: '0.8rem',
+              color: '#8A8780',
               textTransform: 'uppercase',
-              display: 'block',
-              marginBottom: 14,
+              letterSpacing: '0.05em',
             }}
           >
-            Credentials
+            {cert.issuer}
           </span>
-          <h2
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(2rem, 4vw, 3rem)',
-              color: '#1C1C18',
-              lineHeight: 1.15,
-              letterSpacing: '-0.015em',
-              marginBottom: 14,
-            }}
-          >
-            {' '}
-            <span style={{ fontStyle: 'italic', color: '#9B85C4' }}>Certificates</span>
-          </h2>
-          <p
+          <span
             style={{
               fontFamily: 'var(--font-sans)',
-              fontSize: '0.95rem',
-              color: '#6B6860',
-              lineHeight: 1.7,
-              fontWeight: 300,
+              fontSize: '0.8rem',
+              color: '#B5B2AA',
             }}
           >
-            Verified credentials from online courses and professional programs.
-          </p>
+            ↗
+          </span>
         </div>
-
-        {/* Certificate cards grid */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxWidth: '720px', margin: '0' 
-                    }
-        }
-          >
-          {[
-            {
-              title: 'AI Boost Bites: Automate tasks with Gemini and Apps Script',
-              issuer: 'Google',
-              date: '2026',
-              url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414443?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
-              accent: '#B8D4BF',
-            },
-          
-           {
-              title: 'Al Fluency Framework & Foundations',
-              issuer: 'Anthropic',
-              date: '2026',
-              url: 'https://verify.skilljar.com/c/2drrus4jxbrv',
-              accent: '#D5CAEB',
-            },
-          
-            {
-              title: 'AI Capabilities and Limitations',
-              issuer: 'Anthropic',
-              date: '2026',
-              url: 'https://verify.skilljar.com/c/uhroqca7r38j',
-              accent: '#F5E2B8',
-            },
-
-    {
-              title: 'Introduction to Responsible AI',
-              issuer: 'Google',
-              date: '2026',
-              url: 'https://www.skills.google/public_profiles/0157d6a8-3b0c-44d2-bf61-6060bce44196/badges/26414962?utm_medium=social&utm_source=linkedin&utm_campaign=ql-social-share',
-              accent: '#D5CAEB',
-            },
-          
-                      {
-              title: 'Claude 101',
-              issuer: 'Anthropic',
-              date: '2026',
-              url: 'https://verify.skilljar.com/c/6nkq7vzv5y7g',
-              accent: '#F5E2B8',
-            },
-          
-              {
-              title: 'Introduction to Claude Cowork',
-              issuer: 'Anthropic',
-              date: '2026',
-              url: 'https://verify.skilljar.com/c/uav39s8hemj8',
-              accent: '#B8D4BF',
-            },
-          
-                      {
-              title: 'GA Level 3 Certificate in TEFL',
-              issuer: 'i-to-i TEFL',
-              date: '2017/GA/22086',
-              url: 'https://gatehouseawards.org/verify-certificate/',
-              accent: '#F5E2B8',
-            },
-          
-    {
-              title: 'Associate in Computer Technology',
-              issuer: 'STI College Dasmarinas, PH',
-              date: '2014',
-              url: '#',
-              accent: '#B8D4BF',
-            },
-          ].map((cert, i) => (
-            <CertCard key={i} {...cert} />
-          ))}
-        </div>
-      </section>
+      </a>
+    ))}
+  </div>
+</div>
 
       
       
